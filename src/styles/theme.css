@@ -1,0 +1,8 @@
+/* src/styles/theme.css — тёмная тема */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color: #f6f6f6;
+    background-color: #1e1e1e;
+  }
+}

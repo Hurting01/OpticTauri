@@ -1,3 +1,5 @@
+/* src/styles/variables.css — CSS-переменные и базовые настройки шрифтов */
+
 :root {
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
   font-size: 16px;
@@ -12,24 +14,4 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
-}
-
-.page-container {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 2rem;
-}
-
-.page-title {
-  font-size: 1.75rem;
-  font-weight: 700;
-  text-align: left;
-  margin-bottom: 1.5rem;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    color: #f6f6f6;
-    background-color: #1e1e1e;
-  }
 }

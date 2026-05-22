@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import "../components/Header.css";
+import styles from "./Header.module.css";
 
 function formatDateMMYYYY() {
   const now = new Date();
@@ -29,13 +29,13 @@ function Header() {
   };
 
   return (
-    <header className="app-header">
-      <div className="header-left">{currentDate}</div>
-      <div className="header-right">
-        <button className="btn" id="btn-settings" onClick={handleSettings}>
+    <header className={styles.appHeader}>
+      <div className={styles.headerLeft}>{currentDate}</div>
+      <div className={styles.headerRight}>
+        <button className={styles.btn} id="btn-settings" onClick={handleSettings}>
           Настройка
         </button>
-        <button className="btn btn-exit" id="btn-exit" onClick={handleExit}>
+        <button className={`${styles.btn} ${styles.btnExit}`} id="btn-exit" onClick={handleExit}>
           Выход
         </button>
       </div>

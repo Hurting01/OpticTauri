@@ -1,11 +1,17 @@
 import Header from "./components/Header";
-import "./App.css";
+import "./styles/index.css";
+
+if (import.meta.env.PROD) {
+  document.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+  });
+}
 
 function App() {
   return (
     <>
       <Header />
-      <main className="page-container">
+      <main>
         <h1 className="page-title">Главная</h1>
       </main>
     </>

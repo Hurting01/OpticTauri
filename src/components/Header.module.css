@@ -1,4 +1,4 @@
-.app-header {
+.appHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -12,14 +12,14 @@
   z-index: 100;
 }
 
-.header-left {
+.headerLeft {
   font-size: 1.125rem;
   font-weight: 600;
   color: #333;
   letter-spacing: 0.02em;
 }
 
-.header-right {
+.headerRight {
   display: flex;
   gap: 0.75rem;
 }
@@ -46,12 +46,12 @@
   background-color: #e8e8e8;
 }
 
-.btn-exit {
+.btnExit {
   border-color: #c0392b;
   color: #c0392b;
 }
 
-.btn-exit:hover {
+.btnExit:hover {
   border-color: #a02820;
   background-color: #fdf0ee;
 }
@@ -61,12 +61,12 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  .app-header {
+  .appHeader {
     background-color: #2a2a2a;
     border-bottom-color: #444;
   }
 
-  .header-left {
+  .headerLeft {
     color: #e8e8e8;
   }
 
@@ -84,12 +84,12 @@
     background-color: #505050;
   }
 
-  .btn-exit {
+  .btnExit {
     border-color: #c0392b;
     color: #e74c3c;
   }
 
-  .btn-exit:hover {
+  .btnExit:hover {
     background-color: #3a1e1c;
   }
 }

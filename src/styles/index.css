@@ -1,0 +1,5 @@
+/* src/styles/index.css — точка входа стилей, импортирует все модули */
+
+@import "./variables.css";
+@import "./base.css";
+@import "./theme.css";

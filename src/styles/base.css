@@ -1,0 +1,8 @@
+/* src/styles/base.css — глобальные стили лейаута */
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  text-align: left;
+  margin-bottom: 1.5rem;
+}

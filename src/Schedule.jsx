@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Card, Container } from 'react-bootstrap';
+import { Card, Container, Button, Modal, Form } from 'react-bootstrap';
 import NavigationHeader from './components/NavigationHeader';
+import EmployeesService from './employeesService';
 import styles from './Schedule.module.css';
 
 const Schedule = ({ month, year }) => {
   const [scheduleData, setScheduleData] = useState([]);
   const [daysInMonth, setDaysInMonth] = useState(0);
+  const [showModal, setShowModal] = useState(false);
+  const [employees, setEmployees] = useState([]);
+  const [selectedEmployee, setSelectedEmployee] = useState('');
+  const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
 
   const monthNames = [
     'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
@@ -86,6 +91,29 @@ const Schedule = ({ month, year }) => {
     setScheduleData(mockData);
   };
 
+  const loadEmployees = async () => {
+    setIsLoadingEmployees(true);
+    const data = await EmployeesService.getEmployees(true);
+    setEmployees(data);
+    setIsLoadingEmployees(false);
+  };
+
+  const handleOpenModal = () => {
+    loadEmployees();
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedEmployee('');
+  };
+
+  const handleAddRecord = () => {
+    if (!selectedEmployee) return;
+    console.log('Добавить запись для сотрудника:', selectedEmployee);
+    handleCloseModal();
+  };
+
   const getDayOfWeek = (day) => {
     const date = new Date(year, month - 1, day);
     return weekDays[date.getDay()];
@@ -111,9 +139,14 @@ const Schedule = ({ month, year }) => {
         {/* Заголовок */}
         <Card className={styles.headerCard}>
           <Card.Body className="py-3">
-            <h1 className={styles.pageTitle}>
-              📅 График — {monthNames[month - 1]} {year}
-            </h1>
+            <div className="d-flex justify-content-between align-items-center">
+              <h1 className={styles.pageTitle}>
+                📅 График — {monthNames[month - 1]} {year}
+              </h1>
+              <Button variant="primary" onClick={handleOpenModal} className={styles.addButton}>
+                + Добавить запись
+              </Button>
+            </div>
           </Card.Body>
         </Card>
 
@@ -185,6 +218,43 @@ const Schedule = ({ month, year }) => {
             </div>
           </Card.Body>
         </Card>
+
+        <Modal show={showModal} onHide={handleCloseModal} centered>
+          <Modal.Header closeButton>
+            <Modal.Title>Добавить запись</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form>
+              <Form.Group>
+                <Form.Label>Сотрудник</Form.Label>
+                <Form.Select
+                  value={selectedEmployee}
+                  onChange={(e) => setSelectedEmployee(e.target.value)}
+                  disabled={isLoadingEmployees}
+                >
+                  <option value="">Выберите сотрудника</option>
+                  {employees.map((emp) => (
+                    <option key={emp.id} value={emp.id}>
+                      {emp.lastName} {emp.firstName}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+            </Form>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleCloseModal}>
+              Отмена
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleAddRecord}
+              disabled={!selectedEmployee}
+            >
+              Добавить
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </Container>
     </div>
   );

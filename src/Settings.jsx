@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { Card, Button, Form, Table } from 'react-bootstrap';
+import { Card, Button, Form, Table, Nav } from 'react-bootstrap';
 import NavigationHeader from './components/NavigationHeader';
 import EmployeesService from './employeesService';
 
 const Settings = () => {
+  const [activeTab, setActiveTab] = useState('salary');
   const [settings, setSettings] = useState({
     salaryConsultant: 37500,
     salaryOptometrist: 40000,
@@ -97,136 +98,152 @@ const Settings = () => {
     <div className="p-4 fade-in">
       <NavigationHeader title="⚙️ Настройки" />
 
-      <div className="row">
-        {/* ЗП и нормы часов */}
-        <div className="col-md-6">
-          <Card className="mb-3">
-            <Card.Header>💰 Заработная плата</Card.Header>
-            <Card.Body>
-              <Form.Group className="mb-3">
-                <Form.Label>ЗП Продавцы-консультанты (₽)</Form.Label>
-                <Form.Control
-                  type="number"
-                  value={settings.salaryConsultant}
-                  onChange={(e) => setSettings({ ...settings, salaryConsultant: Number(e.target.value) })}
-                />
-              </Form.Group>
-              <Form.Group className="mb-3">
-                <Form.Label>ЗП Оптометристы (₽)</Form.Label>
-                <Form.Control
-                  type="number"
-                  value={settings.salaryOptometrist}
-                  onChange={(e) => setSettings({ ...settings, salaryOptometrist: Number(e.target.value) })}
-                />
-              </Form.Group>
-              <Form.Group className="mb-3">
-                <Form.Label>Доплата управляющего (₽)</Form.Label>
-                <Form.Control
-                  type="number"
-                  value={settings.managerBonus}
-                  onChange={(e) => setSettings({ ...settings, managerBonus: Number(e.target.value) })}
-                />
-              </Form.Group>
-            </Card.Body>
-          </Card>
+      <Nav variant="tabs" className="mb-3 reports-nav">
+        <Nav.Item>
+          <Nav.Link active={activeTab === 'salary'} onClick={() => setActiveTab('salary')}>
+            💰 Заработная плата
+          </Nav.Link>
+        </Nav.Item>
+        <Nav.Item>
+          <Nav.Link active={activeTab === 'hours'} onClick={() => setActiveTab('hours')}>
+            🕐 Нормы часов
+          </Nav.Link>
+        </Nav.Item>
+        <Nav.Item>
+          <Nav.Link active={activeTab === 'staff'} onClick={() => setActiveTab('staff')}>
+            👥 Персонал и должности
+          </Nav.Link>
+        </Nav.Item>
+      </Nav>
 
-          <Card className="mb-3">
-            <Card.Header>🕐 Нормы часов</Card.Header>
-            <Card.Body>
-              <Form.Group className="mb-3">
-                <Form.Label>Норма часов у оптик-консультантов</Form.Label>
-                <Form.Control
-                  type="number"
-                  value={settings.hoursNormConsultant}
-                  onChange={(e) => setSettings({ ...settings, hoursNormConsultant: Number(e.target.value) })}
-                />
-              </Form.Group>
-              <Form.Group className="mb-3">
-                <Form.Label>Норма часов у оптометристов</Form.Label>
-                <Form.Control
-                  type="number"
-                  value={settings.hoursNormOptometrist}
-                  onChange={(e) => setSettings({ ...settings, hoursNormOptometrist: Number(e.target.value) })}
-                />
-              </Form.Group>
-              <Form.Group className="mb-3">
-                <Form.Label>Часов/смена у продавцов-консультантов</Form.Label>
-                <Form.Control
-                  type="number"
-                  value={settings.hoursPerShiftConsultant}
-                  onChange={(e) => setSettings({ ...settings, hoursPerShiftConsultant: Number(e.target.value) })}
-                />
-              </Form.Group>
-              <Form.Group className="mb-3">
-                <Form.Label>Часов/смена у оптометристов</Form.Label>
-                <Form.Control
-                  type="number"
-                  value={settings.hoursPerShiftOptometrist}
-                  onChange={(e) => setSettings({ ...settings, hoursPerShiftOptometrist: Number(e.target.value) })}
-                />
-              </Form.Group>
-            </Card.Body>
-          </Card>
-        </div>
+      {activeTab === 'salary' && (
+        <Card>
+          <Card.Header className="app-header">💰 Заработная плата</Card.Header>
+          <Card.Body>
+            <Form.Group className="mb-3">
+              <Form.Label>ЗП Продавцы-консультанты (₽)</Form.Label>
+              <Form.Control
+                type="number"
+                value={settings.salaryConsultant}
+                onChange={(e) => setSettings({ ...settings, salaryConsultant: Number(e.target.value) })}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>ЗП Оптометристы (₽)</Form.Label>
+              <Form.Control
+                type="number"
+                value={settings.salaryOptometrist}
+                onChange={(e) => setSettings({ ...settings, salaryOptometrist: Number(e.target.value) })}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Доплата управляющего (₽)</Form.Label>
+              <Form.Control
+                type="number"
+                value={settings.managerBonus}
+                onChange={(e) => setSettings({ ...settings, managerBonus: Number(e.target.value) })}
+              />
+            </Form.Group>
+          </Card.Body>
+        </Card>
+      )}
 
-        {/* Сотрудники */}
-        <div className="col-md-6">
-          <Card>
-            <Card.Header className="d-flex justify-content-between align-items-center">
-              <span>👥 Персонал и должности</span>
-              <Button variant="outline-primary" size="sm" onClick={addEmployee}>
-                + Добавить
-              </Button>
-            </Card.Header>
-            <Card.Body>
-              <Table striped bordered hover size="sm" className="employees-table">
-                <thead>
-                  <tr>
-                    <th>Должность</th>
-                    <th>ФИО</th>
-                    <th>Действия</th>
+      {activeTab === 'hours' && (
+        <Card>
+          <Card.Header className="app-header">🕐 Нормы часов</Card.Header>
+          <Card.Body>
+            <Form.Group className="mb-3">
+              <Form.Label>Норма часов у оптик-консультантов</Form.Label>
+              <Form.Control
+                type="number"
+                value={settings.hoursNormConsultant}
+                onChange={(e) => setSettings({ ...settings, hoursNormConsultant: Number(e.target.value) })}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Норма часов у оптометристов</Form.Label>
+              <Form.Control
+                type="number"
+                value={settings.hoursNormOptometrist}
+                onChange={(e) => setSettings({ ...settings, hoursNormOptometrist: Number(e.target.value) })}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Часов/смена у продавцов-консультантов</Form.Label>
+              <Form.Control
+                type="number"
+                value={settings.hoursPerShiftConsultant}
+                onChange={(e) => setSettings({ ...settings, hoursPerShiftConsultant: Number(e.target.value) })}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Часов/смена у оптометристов</Form.Label>
+              <Form.Control
+                type="number"
+                value={settings.hoursPerShiftOptometrist}
+                onChange={(e) => setSettings({ ...settings, hoursPerShiftOptometrist: Number(e.target.value) })}
+              />
+            </Form.Group>
+          </Card.Body>
+        </Card>
+      )}
+
+      {activeTab === 'staff' && (
+        <Card>
+          <Card.Header className="app-header d-flex justify-content-between align-items-center">
+            <span>👥 Персонал и должности</span>
+            <Button variant="outline-primary" size="sm" onClick={addEmployee}>
+              + Добавить
+            </Button>
+          </Card.Header>
+          <Card.Body>
+            <Table striped bordered hover size="sm" className="employees-table">
+              <thead>
+                <tr>
+                  <th>Должность</th>
+                  <th>ФИО</th>
+                  <th>Действия</th>
+                </tr>
+              </thead>
+              <tbody>
+                {employees.map((emp) => (
+                  <tr key={emp.id ?? `temp-${Math.random()}`}>
+                    <td>
+                      <Form.Control
+                        type="text"
+                        size="sm"
+                        value={emp.position}
+                        onChange={(e) => handleEmployeeChange(emp.id, 'position', e.target.value)}
+                        onBlur={() => handleEmployeeBlur(emp)}
+                        placeholder="Должность"
+                      />
+                    </td>
+                    <td>
+                      <Form.Control
+                        type="text"
+                        size="sm"
+                        value={emp.fullName}
+                        onChange={(e) => handleEmployeeChange(emp.id, 'fullName', e.target.value)}
+                        onBlur={() => handleEmployeeBlur(emp)}
+                        placeholder="ФИО"
+                      />
+                    </td>
+                    <td>
+                      <Button
+                        variant="outline-danger"
+                        size="sm"
+                        onClick={() => removeEmployee(emp)}
+                      >
+                        ✕
+                      </Button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {employees.map((emp) => (
-                    <tr key={emp.id ?? `temp-${Math.random()}`}>
-                      <td>
-                        <Form.Control
-                          type="text"
-                          size="sm"
-                          value={emp.position}
-                          onChange={(e) => handleEmployeeChange(emp.id, 'position', e.target.value)}
-                          onBlur={() => handleEmployeeBlur(emp)}
-                          placeholder="Должность"
-                        />
-                      </td>
-                      <td>
-                        <Form.Control
-                          type="text"
-                          size="sm"
-                          value={emp.fullName}
-                          onChange={(e) => handleEmployeeChange(emp.id, 'fullName', e.target.value)}
-                          onBlur={() => handleEmployeeBlur(emp)}
-                          placeholder="ФИО"
-                        />
-                      </td>
-                      <td>
-                        <Button
-                          variant="outline-danger"
-                          size="sm"
-                          onClick={() => removeEmployee(emp)}
-                        >
-                          ✕
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </Card.Body>
-          </Card>
-        </div>
-      </div>
+                ))}
+              </tbody>
+            </Table>
+          </Card.Body>
+        </Card>
+      )}
     </div>
   );
 };

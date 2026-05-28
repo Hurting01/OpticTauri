@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Button, Form, Table, Row, Col, Modal } from 'react-bootstrap';
+import NavigationHeader from './components/NavigationHeader';
 import EmployeesService from './employeesService';
 
 const DaySheet = ({ month, year }) => {
@@ -266,19 +267,11 @@ const DaySheet = ({ month, year }) => {
 
   return (
     <div className="p-4 fade-in">
-      {/* Заголовок */}
-      <Card className="mb-4 top-panel">
-        <Card.Body className="py-3">
-          <div className="d-flex justify-content-between align-items-center">
-            <h1 className="mb-0 month-title">📅 {dayNum} {monthNamesGenitive[month - 1]} {year}</h1>
-            <div className="d-flex gap-2 top-buttons">
-              <Button variant="light" onClick={() => navigate('/')}>
-                ← Назад
-              </Button>
-            </div>
-          </div>
-        </Card.Body>
-      </Card>
+      <NavigationHeader 
+        title={`📅 ${dayNum} ${monthNamesGenitive[month - 1]} ${year}`} 
+        showBackButton={true}
+        backUrl="/"
+      />
 
       <div className="d-flex gap-4">
         {/* Основной контент */}

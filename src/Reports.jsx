@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, Table, Nav, Button, Form } from 'react-bootstrap';
+import { Card, Table, Nav, Form } from 'react-bootstrap';
+import NavigationHeader from './components/NavigationHeader';
 import EmployeesService from './employeesService';
 
 const Reports = ({ month, year }) => {
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('bonus');
   const [settings, setSettings] = useState({
     salaryConsultant: 37500,
@@ -190,34 +189,7 @@ const Reports = ({ month, year }) => {
 
   return (
     <div className="p-4 fade-in">
-      {/* Заголовок */}
-      <Card className="mb-3 top-panel">
-        <Card.Body className="py-3">
-          <div className="d-flex justify-content-between align-items-center">
-            <h1 className="mb-0 month-title">📊 Отчеты</h1>
-
-            <div className="d-flex gap-2 top-buttons">
-              <Button variant="light" onClick={() => navigate('/reports')}>
-                📊 Отчеты
-              </Button>
-              <Button variant="light" onClick={() => {}}>
-                📈 График
-              </Button>
-              <Button variant="light" onClick={() => {}}>
-                💰 Касса
-              </Button>
-              <Button variant="light" onClick={() => navigate('/settings')}>
-                ⚙️ Настройки
-              </Button>
-              <Button variant="light" onClick={() => navigate('/')} title="Главная" className="home-btn">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-                </svg>
-              </Button>
-            </div>
-          </div>
-        </Card.Body>
-      </Card>
+      <NavigationHeader title="📊 Отчеты" />
 
       {/* Навигация по отчетам */}
       <Nav variant="tabs" className="mb-3 reports-nav">

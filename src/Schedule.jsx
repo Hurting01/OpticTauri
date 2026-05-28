@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Card, Button, Container } from 'react-bootstrap';
+import { Card, Container } from 'react-bootstrap';
+import NavigationHeader from './components/NavigationHeader';
 import styles from './Schedule.module.css';
 
 const Schedule = ({ month, year }) => {
@@ -103,8 +104,10 @@ const Schedule = ({ month, year }) => {
   };
 
   return (
-    <div className={styles.scheduleContainer}>
-      <Container fluid className="p-4">
+    <div className="p-4 fade-in">
+      <NavigationHeader title="📈 График" />
+
+      <Container fluid className="p-0">
         {/* Заголовок */}
         <Card className={styles.headerCard}>
           <Card.Body className="py-3">

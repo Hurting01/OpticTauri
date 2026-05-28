@@ -1,0 +1,356 @@
+/* Schedule.module.css — стили для страницы График */
+
+.scheduleContainer {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding-bottom: 2rem;
+}
+
+.headerCard {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: none;
+  margin-bottom: 1.5rem;
+}
+
+.pageTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.tableCard {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: none;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: calc(100vh - 300px);
+}
+
+.scheduleTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.headerRow {
+  background: linear-gradient(135deg, #ffd1dc 0%, #ffe5e5 100%);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.headerRow th {
+  padding: 10px 4px;
+  text-align: center;
+  font-weight: 600;
+  color: #333;
+  border-right: 1px solid #e0e0e0;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.nameColumn {
+  min-width: 140px;
+  text-align: left;
+  padding-left: 12px !important;
+  background: linear-gradient(135deg, #ffd1dc 0%, #ffe5e5 100%);
+  position: sticky;
+  left: 0;
+  z-index: 11;
+}
+
+.monthLabel {
+  font-size: 14px;
+  font-weight: 700;
+  color: #c0392b;
+}
+
+.dayHeader {
+  min-width: 50px;
+  padding: 6px 2px !important;
+}
+
+.dayNumber {
+  font-weight: 700;
+  font-size: 12px;
+  color: #333;
+}
+
+.dayOfWeek {
+  font-size: 11px;
+  color: #666;
+  margin-top: 2px;
+}
+
+.hoursColumn,
+.daysColumn {
+  min-width: 60px;
+  background: linear-gradient(135deg, #ffd1dc 0%, #ffe5e5 100%);
+}
+
+.serviceTypeRow {
+  background: #ffeb3b;
+  font-weight: 600;
+  color: #333;
+}
+
+.serviceTypeCell {
+  padding: 10px 12px !important;
+  text-align: center;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.employeeRow {
+  border-bottom: 1px solid #e0e0e0;
+  transition: background-color 0.2s;
+}
+
+.employeeRow:hover {
+  background-color: #f8f9fa;
+}
+
+.employeeName {
+  min-width: 140px;
+  padding: 8px 12px !important;
+  font-weight: 500;
+  color: #333;
+  background: white;
+  position: sticky;
+  left: 0;
+  z-index: 9;
+  border-right: 1px solid #e0e0e0;
+}
+
+.scheduleCell {
+  padding: 8px 4px !important;
+  text-align: center;
+  border-right: 1px solid #e0e0e0;
+  background: white;
+  font-weight: 500;
+  color: #333;
+}
+
+.scheduleCell:empty {
+  background: #f8f9fa;
+}
+
+.hoursCell,
+.daysCell {
+  padding: 8px 12px !important;
+  text-align: center;
+  font-weight: 600;
+  color: #333;
+  background: white;
+  border-right: 1px solid #e0e0e0;
+}
+
+.daysCell {
+  border-right: none;
+}
+
+.legendCard {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: none;
+}
+
+.legendBody {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  padding: 1.5rem;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 14px;
+  color: #333;
+}
+
+.legendLabel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-weight: 600;
+  color: #333;
+  font-size: 13px;
+}
+
+/* Темная тема */
+@media (prefers-color-scheme: dark) {
+  .scheduleContainer {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  }
+
+  .headerCard,
+  .tableCard,
+  .legendCard {
+    background: #2a2a2a;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .pageTitle {
+    color: #f0f0f0;
+  }
+
+  .headerRow th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-right-color: #555;
+    border-bottom-color: #555;
+  }
+
+  .nameColumn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  .monthLabel {
+    color: #ffeb3b;
+  }
+
+  .dayNumber,
+  .dayOfWeek {
+    color: white;
+  }
+
+  .hoursColumn,
+  .daysColumn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  .serviceTypeRow {
+    background: #ffeb3b;
+  }
+
+  .serviceTypeCell {
+    color: #333;
+    border-bottom-color: #555;
+  }
+
+  .employeeRow {
+    border-bottom-color: #444;
+  }
+
+  .employeeRow:hover {
+    background-color: #333;
+  }
+
+  .employeeName {
+    background: #2a2a2a;
+    color: #f0f0f0;
+    border-right-color: #444;
+  }
+
+  .scheduleCell {
+    background: #2a2a2a;
+    color: #f0f0f0;
+    border-right-color: #444;
+  }
+
+  .scheduleCell:empty {
+    background: #333;
+  }
+
+  .hoursCell,
+  .daysCell {
+    background: #2a2a2a;
+    color: #f0f0f0;
+    border-right-color: #444;
+  }
+
+  .legendBody {
+    color: #f0f0f0;
+  }
+
+  .legendItem {
+    color: #f0f0f0;
+  }
+
+  .legendLabel {
+    background: #333;
+    border-color: #555;
+    color: #f0f0f0;
+  }
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .scheduleContainer {
+    padding: 1rem;
+  }
+
+  .pageTitle {
+    font-size: 1.5rem;
+  }
+
+  .scheduleTable {
+    font-size: 12px;
+  }
+
+  .dayHeader {
+    min-width: 40px;
+    padding: 4px 2px !important;
+  }
+
+  .dayNumber {
+    font-size: 11px;
+  }
+
+  .dayOfWeek {
+    font-size: 10px;
+  }
+
+  .nameColumn {
+    min-width: 100px;
+  }
+
+  .employeeName {
+    min-width: 100px;
+    padding: 6px 8px !important;
+    font-size: 12px;
+  }
+
+  .scheduleCell {
+    padding: 6px 2px !important;
+    font-size: 12px;
+  }
+
+  .hoursCell,
+  .daysCell {
+    padding: 6px 8px !important;
+    font-size: 12px;
+  }
+
+  .legendBody {
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .legendItem {
+    font-size: 12px;
+  }
+
+  .legendLabel {
+    min-width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+}

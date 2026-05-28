@@ -4,6 +4,7 @@ import Dashboard from './Dashboard';
 import DaySheet from './DaySheet';
 import Reports from './Reports';
 import Settings from './Settings';
+import Schedule from './Schedule';
 
 function App() {
   const currentMonth = new Date().getMonth() + 1;
@@ -37,7 +38,16 @@ function App() {
               path="/settings" 
               element={<Settings />} 
             />
-          </Routes>
+            <Route 
+              path="/schedule" 
+              element={
+                <Schedule 
+                  month={currentMonth}
+                  year={currentYear}
+                />
+              } 
+            />
+           </Routes>
         </Container>
       </div>
     </Router>

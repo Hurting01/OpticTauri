@@ -123,7 +123,7 @@ const Dashboard = () => {
               <Button variant="light" onClick={() => navigate('/reports')}>
                 📊 Отчеты
               </Button>
-              <Button variant="light" onClick={() => {}}>
+              <Button variant="light" onClick={() => navigate('/schedule')}>
                 📈 График
               </Button>
               <Button variant="light" onClick={() => {}}>

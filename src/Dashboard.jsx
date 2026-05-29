@@ -117,20 +117,20 @@ const Dashboard = () => {
       <Card className="mb-4 top-panel">
         <Card.Body className="py-3">
           <div className="d-flex justify-content-between align-items-center">
-            <h1 className="mb-0 month-title">📅 {monthNames[currentMonth - 1]} {currentYear}</h1>
+            <h1 className="mb-0 month-title">{monthNames[currentMonth - 1]} {currentYear}</h1>
 
             <div className="d-flex gap-2 top-buttons">
               <Button variant="light" onClick={() => navigate('/reports')}>
-                📊 Отчеты
+                Отчеты
               </Button>
               <Button variant="light" onClick={() => navigate('/schedule')}>
-                📈 График
+                График
               </Button>
               <Button variant="light" onClick={() => {}}>
-                💰 Касса
+                Касса
               </Button>
               <Button variant="light" onClick={() => navigate('/settings')}>
-                ⚙️ Настройки
+                Настройки
               </Button>
             </div>
           </div>
@@ -143,7 +143,7 @@ const Dashboard = () => {
         <div className="left-section">
           <Card className="tasks-card">
             <Card.Header className="tasks-header app-header">
-              ✅ Задачи на сегодня
+              Задачи на сегодня
             </Card.Header>
             <Card.Body>
               <div className="tasks-list">
@@ -173,7 +173,7 @@ const Dashboard = () => {
           {pastTasks.length > 0 && (
             <Card className="tasks-card past-tasks-card">
               <Card.Header className="past-tasks-header app-header">
-                ⏳ Невыполненные задачи из прошлых дней
+                Невыполненные задачи из прошлых дней
               </Card.Header>
               <Card.Body>
                 <div className="tasks-list">
@@ -203,7 +203,7 @@ const Dashboard = () => {
         {/* Правая часть - компактный календарь */}
         <div className="right-section">
           <Card className="calendar-card">
-            <Card.Header className="calendar-header app-header app-header-small">📆 Календарь</Card.Header>
+            <Card.Header className="calendar-header app-header app-header-small">Календарь</Card.Header>
             <Card.Body className="p-2">
               <div className="calendar-grid-header">
                 {weekDays.map((day) => (

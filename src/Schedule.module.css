@@ -2,14 +2,14 @@
 
 .scheduleContainer {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #eef2f6;
   padding-bottom: 2rem;
 }
 
 .headerCard {
   background: white;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 8px rgba(15, 23, 42, 0.08);
   border: none;
   margin-bottom: 1.5rem;
 }
@@ -31,26 +31,27 @@
 .tableCard {
   background: white;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 8px rgba(15, 23, 42, 0.08);
   border: none;
   margin-bottom: 1.5rem;
   overflow: hidden;
 }
 
 .tableWrapper {
-  overflow-x: auto;
+  overflow-x: hidden;
   overflow-y: auto;
   max-height: calc(100vh - 300px);
 }
 
 .scheduleTable {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   font-size: 13px;
 }
 
 .headerRow {
-  background: linear-gradient(135deg, #ffd1dc 0%, #ffe5e5 100%);
+  background: #cfdceb;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -66,10 +67,10 @@
 }
 
 .nameColumn {
-  min-width: 140px;
+  width: 140px;
   text-align: left;
   padding-left: 12px !important;
-  background: linear-gradient(135deg, #ffd1dc 0%, #ffe5e5 100%);
+  background: #cfdceb;
   position: sticky;
   left: 0;
   z-index: 11;
@@ -78,34 +79,34 @@
 .monthLabel {
   font-size: 14px;
   font-weight: 700;
-  color: #c0392b;
+  color: #2f5f8f;
 }
 
 .dayHeader {
-  min-width: 50px;
+  width: calc((100% - 260px) / 31);
   padding: 6px 2px !important;
 }
 
 .dayNumber {
-  font-weight: 700;
-  font-size: 12px;
+  font-weight: 800;
+  font-size: 14px;
   color: #333;
 }
 
 .dayOfWeek {
-  font-size: 11px;
+  font-size: 10px;
   color: #666;
   margin-top: 2px;
 }
 
 .hoursColumn,
 .daysColumn {
-  min-width: 60px;
-  background: linear-gradient(135deg, #ffd1dc 0%, #ffe5e5 100%);
+  width: 60px;
+  background: #cfdceb;
 }
 
 .serviceTypeRow {
-  background: #ffeb3b;
+  background: #eef3d8;
   font-weight: 600;
   color: #333;
 }
@@ -126,7 +127,7 @@
 }
 
 .employeeName {
-  min-width: 140px;
+  width: 140px;
   padding: 8px 12px !important;
   font-weight: 500;
   color: #333;
@@ -153,6 +154,7 @@
 .hoursCell,
 .daysCell {
   padding: 8px 12px !important;
+  width: 60px;
   text-align: center;
   font-weight: 600;
   color: #333;
@@ -167,7 +169,7 @@
 .legendCard {
   background: white;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 8px rgba(15, 23, 42, 0.08);
   border: none;
 }
 
@@ -214,8 +216,8 @@
   }
 
   .addButton {
-    background: #667eea;
-    border-color: #667eea;
+    background: #2f5f8f;
+    border-color: #2f5f8f;
   }
 
   .addButton:hover {
@@ -228,18 +230,18 @@
   }
 
   .headerRow th {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #2f5f8f;
     color: white;
     border-right-color: #555;
     border-bottom-color: #555;
   }
 
   .nameColumn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #2f5f8f;
   }
 
   .monthLabel {
-    color: #ffeb3b;
+    color: #eef3d8;
   }
 
   .dayNumber,
@@ -249,11 +251,11 @@
 
   .hoursColumn,
   .daysColumn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #2f5f8f;
   }
 
   .serviceTypeRow {
-    background: #ffeb3b;
+    background: #eef3d8;
   }
 
   .serviceTypeCell {
@@ -322,24 +324,24 @@
   }
 
   .dayHeader {
-    min-width: 40px;
+    width: calc((100% - 190px) / 31);
     padding: 4px 2px !important;
   }
 
   .dayNumber {
-    font-size: 11px;
+    font-size: 12px;
   }
 
   .dayOfWeek {
-    font-size: 10px;
+    font-size: 9px;
   }
 
   .nameColumn {
-    min-width: 100px;
+    width: 100px;
   }
 
   .employeeName {
-    min-width: 100px;
+    width: 100px;
     padding: 6px 8px !important;
     font-size: 12px;
   }
@@ -352,6 +354,7 @@
   .hoursCell,
   .daysCell {
     padding: 6px 8px !important;
+    width: 45px;
     font-size: 12px;
   }
 

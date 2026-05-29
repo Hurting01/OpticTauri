@@ -268,7 +268,7 @@ const DaySheet = ({ month, year }) => {
   return (
     <div className="p-4 fade-in">
       <NavigationHeader 
-        title={`📅 ${dayNum} ${monthNamesGenitive[month - 1]} ${year}`} 
+        title={`${dayNum} ${monthNamesGenitive[month - 1]} ${year}`} 
         showBackButton={true}
         backUrl="/"
       />
@@ -278,7 +278,7 @@ const DaySheet = ({ month, year }) => {
         <div className="day-main-section">
           {/* Сотрудники */}
           <div className="employees-section">
-            <h4>👥 Сотрудники</h4>
+            <h4>Сотрудники</h4>
             {dayEmployees.map((emp, idx) => (
               <div key={idx} className="employee-row">
                 <Form.Control
@@ -513,7 +513,7 @@ const DaySheet = ({ month, year }) => {
         <div className="day-sidebar-section">
           {/* Касса */}
           <Card className="mb-3 compact-card sidebar-card">
-            <Card.Header className="app-header app-header-small text-center">💰 Касса</Card.Header>
+            <Card.Header className="app-header app-header-small text-center">Касса</Card.Header>
             <Card.Body className="compact-body">
               <Form.Group className="compact-form-group">
                 <Form.Label>Касса утро:</Form.Label>
@@ -540,7 +540,7 @@ const DaySheet = ({ month, year }) => {
 
           {/* Календарь */}
           <Card className="calendar-card">
-            <Card.Header className="calendar-header app-header app-header-small">📆 Календарь</Card.Header>
+            <Card.Header className="calendar-header app-header app-header-small">Календарь</Card.Header>
             <Card.Body className="p-2">
               <div className="calendar-grid-header">
                 {weekDays.map((d) => (
@@ -573,7 +573,7 @@ const DaySheet = ({ month, year }) => {
           {/* Задачи */}
           <Card className="compact-card sidebar-card tasks-sidebar-card">
             <Card.Header className="app-header app-header-small calendar-header">
-              <span>✅ Задачи</span>
+              <span>Задачи</span>
             </Card.Header>
             <Card.Body className="compact-body tasks-body">
               <div className="task-add-row">

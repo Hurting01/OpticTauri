@@ -189,28 +189,28 @@ const Reports = ({ month, year }) => {
 
   return (
     <div className="p-4 fade-in">
-      <NavigationHeader title="📊 Отчеты" />
+      <NavigationHeader title="Отчеты" />
 
       {/* Навигация по отчетам */}
       <Nav variant="tabs" className="mb-3 reports-nav">
         <Nav.Item>
           <Nav.Link active={activeTab === 'bonus'} onClick={() => setActiveTab('bonus')}>
-            💰 Бонусы
+            Бонусы
           </Nav.Link>
         </Nav.Item>
         <Nav.Item>
           <Nav.Link active={activeTab === 'salary'} onClick={() => setActiveTab('salary')}>
-            💵 ЗП
+            ЗП
           </Nav.Link>
         </Nav.Item>
         <Nav.Item>
           <Nav.Link active={activeTab === 'conversion'} onClick={() => setActiveTab('conversion')}>
-            📈 Конверсия
+            Конверсия
           </Nav.Link>
         </Nav.Item>
         <Nav.Item>
           <Nav.Link active={activeTab === 'orders'} onClick={() => setActiveTab('orders')}>
-            📦 Заказы
+            Заказы
           </Nav.Link>
         </Nav.Item>
       </Nav>
@@ -267,7 +267,7 @@ const Reports = ({ month, year }) => {
       {/* ЗП */}
       {activeTab === 'salary' && (
         <Card>
-          <Card.Header className="app-header">💵 Заработная плата за {monthNames[month - 1]} {year}</Card.Header>
+          <Card.Header className="app-header">Заработная плата за {monthNames[month - 1]} {year}</Card.Header>
           <Card.Body>
             <Table striped bordered hover>
               <thead>
@@ -298,7 +298,7 @@ const Reports = ({ month, year }) => {
       {/* Конверсия */}
       {activeTab === 'conversion' && (
         <Card>
-          <Card.Header className="app-header">📈 Конверсия продаж</Card.Header>
+          <Card.Header className="app-header">Конверсия продаж</Card.Header>
           <Card.Body>
             <Table striped bordered hover size="sm">
               <thead>
@@ -333,7 +333,7 @@ const Reports = ({ month, year }) => {
       {/* Заказы */}
       {activeTab === 'orders' && (
         <Card>
-          <Card.Header className="app-header">📦 Заказ позиций</Card.Header>
+          <Card.Header className="app-header">Заказ позиций</Card.Header>
           <Card.Body>
             <Table striped bordered hover>
               <thead>

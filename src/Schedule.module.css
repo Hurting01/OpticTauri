@@ -88,13 +88,13 @@
 }
 
 .dayNumber {
-  font-weight: 700;
-  font-size: 12px;
+  font-weight: 800;
+  font-size: 14px;
   color: #333;
 }
 
 .dayOfWeek {
-  font-size: 11px;
+  font-size: 10px;
   color: #666;
   margin-top: 2px;
 }
@@ -329,11 +329,11 @@
   }
 
   .dayNumber {
-    font-size: 11px;
+    font-size: 12px;
   }
 
   .dayOfWeek {
-    font-size: 10px;
+    font-size: 9px;
   }
 
   .nameColumn {

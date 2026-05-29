@@ -368,6 +368,23 @@ fn delete_staff(staff_id: i32) -> bool {
         .is_ok()
 }
 
+#[tauri::command]
+fn update_staff(staff_id: i32, new_full_name: &str, new_position_id: i32) -> Staff {
+    let database_url = get_db_path();
+    let mut conn = SqliteConnection::establish(&database_url)
+        .expect("Ошибка подключения к базе данных");
+
+    use schema::staff::dsl::*;
+    diesel::update(staff.filter(id.eq(staff_id)))
+        .set((full_name.eq(new_full_name), position_id.eq(new_position_id)))
+        .execute(&mut conn)
+        .expect("Ошибка обновления сотрудника");
+
+    staff.filter(id.eq(staff_id))
+        .first(&mut conn)
+        .unwrap()
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     run_migrations();
@@ -381,7 +398,8 @@ pub fn run() {
             update_position,
             get_staff,
             create_staff,
-            delete_staff
+            delete_staff,
+            update_staff
         ])
         .run(tauri::generate_context!())
         .expect("Ошибка при запуске приложения");

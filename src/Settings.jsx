@@ -157,6 +157,28 @@ const Settings = () => {
     setNewPositionName('');
   };
 
+  const saveEditStaff = async () => {
+    if (!editingStaff || !selectedPositionId || !newFullName.trim()) return;
+    
+    try {
+      const updated = await invoke('update_staff', { staffId: editingStaff.id, fullName: newFullName, positionId: Number(selectedPositionId) });
+      const position = positions.find(p => p.id === Number(selectedPositionId));
+      setStaff(prev => prev.map(s => s.id === editingStaff.id ? { ...updated, position_name: position?.name || '' } : s));
+      setEditingStaff(null);
+      setSelectedPositionId('');
+      setNewFullName('');
+    } catch (err) {
+      console.error('Failed to update staff:', err);
+      alert('Ошибка обновления сотрудника: ' + err);
+    }
+  };
+
+  const cancelEditStaff = () => {
+    setEditingStaff(null);
+    setSelectedPositionId('');
+    setNewFullName('');
+  };
+
   const getPositionName = (positionId) => {
     const pos = positions.find(p => p.id === positionId);
     return pos ? pos.name : '';
@@ -342,17 +364,65 @@ const Settings = () => {
                 </tr>
               </thead>
               <tbody>
-                {staff.map((emp) => (
-                  <tr key={`staff-${emp.id}`}>
-                    <td>{getPositionName(emp.position_id)}</td>
-                    <td>{emp.full_name}</td>
+                {editingStaff ? (
+                  <tr>
                     <td>
-                      <Button variant="outline-danger" size="sm" onClick={() => removeStaff(emp)}>
-                        ✕
-                      </Button>
+                      <Form.Select
+                        value={selectedPositionId}
+                        onChange={(e) => setSelectedPositionId(Number(e.target.value))}
+                        style={{ maxWidth: '200px' }}
+                        size="sm"
+                      >
+                        {positions.map((pos) => (
+                          <option key={pos.id} value={pos.id}>
+                            {pos.name}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    </td>
+                    <td>
+                      <Form.Control
+                        type="text"
+                        value={newFullName}
+                        onChange={(e) => setNewFullName(e.target.value)}
+                        placeholder="ФИО"
+                        style={{ maxWidth: '250px' }}
+                        size="sm"
+                      />
+                    </td>
+                    <td>
+                      <div className="d-flex gap-1">
+                        <Button variant="success" size="sm" onClick={saveEditStaff}>
+                          Сохранить
+                        </Button>
+                        <Button variant="secondary" size="sm" onClick={cancelEditStaff}>
+                          Отмена
+                        </Button>
+                      </div>
                     </td>
                   </tr>
-                ))}
+                ) : staff.length === 0 ? (
+                  <tr>
+                    <td colSpan="3" className="text-center text-muted">Нет сотрудников</td>
+                  </tr>
+                ) : (
+                  staff.map((emp) => (
+                    <tr key={`staff-${emp.id}`}>
+                      <td>{getPositionName(emp.position_id)}</td>
+                      <td>{emp.full_name}</td>
+                      <td>
+                        <div className="d-flex gap-1">
+                          <Button variant="outline-primary" size="sm" onClick={() => handleEditStaff(emp)}>
+                            ✎
+                          </Button>
+                          <Button variant="outline-danger" size="sm" onClick={() => removeStaff(emp)}>
+                            ✕
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </Table>
           </Card.Body>

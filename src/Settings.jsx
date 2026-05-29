@@ -222,9 +222,14 @@ const Settings = () => {
         <Card>
           <Card.Header className="app-header d-flex justify-content-between align-items-center">
             <span>👥 Персонал и должности</span>
-            <Button variant="outline-primary" size="sm" onClick={() => setShowAddModal(true)}>
-              + Добавить
-            </Button>
+            <div className="d-flex gap-2">
+              <Button variant="outline-primary" size="sm" onClick={() => { setShowAddModal(true); addPosition(); }}>
+                + Добавить должность
+              </Button>
+              <Button variant="outline-success" size="sm" onClick={() => { setShowAddModal(true); addNewEmployee(); }}>
+                + Добавить сотрудника
+              </Button>
+            </div>
           </Card.Header>
           <Card.Body>
             <Table striped bordered hover size="sm" className="employees-table">

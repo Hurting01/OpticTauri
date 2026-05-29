@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Button, Form, Table, Row, Col, Modal } from 'react-bootstrap';
 import NavigationHeader from './components/NavigationHeader';
-import EmployeesService from './employeesService';
 
 const DaySheet = ({ month, year }) => {
   const { day } = useParams();

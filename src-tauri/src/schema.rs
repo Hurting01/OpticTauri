@@ -1,12 +1,4 @@
 diesel::table! {
-    users (id) {
-        id -> Nullable<Integer>,
-        name -> Text,
-        created_at -> Text,
-    }
-}
-
-diesel::table! {
     tasks (id) {
         id -> Nullable<Integer>,
         user_id -> Integer,
@@ -196,3 +188,15 @@ diesel::table! {
         created_at -> Text,
     }
 }
+
+// Определение связей между таблицами
+diesel::joinable!(staff -> positions (position_id));
+diesel::joinable!(tasks -> staff (user_id));
+diesel::joinable!(schedule -> staff (user_id));
+diesel::joinable!(bonuses -> staff (user_id));
+diesel::joinable!(salary -> staff (user_id));
+
+diesel::allow_tables_to_appear_in_same_query!(
+    positions,
+    staff,
+);

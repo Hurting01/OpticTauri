@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Card, Button, Form, Table, Nav, Modal } from 'react-bootstrap';
 import NavigationHeader from './components/NavigationHeader';
-import StaffService from './staffService';
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState('salary');

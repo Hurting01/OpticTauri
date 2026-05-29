@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, Container, Button, Modal, Form } from 'react-bootstrap';
 import NavigationHeader from './components/NavigationHeader';
-import EmployeesService from './employeesService';
 import styles from './Schedule.module.css';
 
 const Schedule = ({ month, year }) => {

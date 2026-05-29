@@ -14,23 +14,13 @@ fn run_migrations() {
         .expect("Ошибка подключения к базе данных");
 
     diesel::sql_query(
-        "CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            created_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
-        )",
-    )
-    .execute(&mut conn)
-    .expect("Ошибка создания таблицы users");
-
-    diesel::sql_query(
         "CREATE TABLE IF NOT EXISTS tasks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL,
             date TEXT NOT NULL,
             description TEXT NOT NULL,
             completed BOOLEAN NOT NULL DEFAULT 0,
-            FOREIGN KEY (user_id) REFERENCES users(id)
+            FOREIGN KEY (user_id) REFERENCES staff(id)
         )",
     )
     .execute(&mut conn)
@@ -106,7 +96,7 @@ fn run_migrations() {
             user_id INTEGER NOT NULL,
             date TEXT NOT NULL,
             shift TEXT NOT NULL,
-            FOREIGN KEY (user_id) REFERENCES users(id)
+            FOREIGN KEY (user_id) REFERENCES staff(id)
         )",
     )
     .execute(&mut conn)
@@ -120,7 +110,7 @@ fn run_migrations() {
             amount REAL NOT NULL,
             date TEXT NOT NULL,
             created_at TEXT NOT NULL DEFAULT (datetime('now','localtime')),
-            FOREIGN KEY (user_id) REFERENCES users(id),
+            FOREIGN KEY (user_id) REFERENCES staff(id),
             FOREIGN KEY (sale_id) REFERENCES sales(id)
         )",
     )
@@ -202,7 +192,7 @@ fn run_migrations() {
             deductions REAL NOT NULL DEFAULT 0,
             total_salary REAL NOT NULL,
             created_at TEXT NOT NULL DEFAULT (datetime('now','localtime')),
-            FOREIGN KEY (user_id) REFERENCES users(id)
+            FOREIGN KEY (user_id) REFERENCES staff(id)
         )",
     )
     .execute(&mut conn)
@@ -242,6 +232,11 @@ fn run_migrations() {
     )
     .execute(&mut conn)
     .expect("Ошибка создания таблицы positions");
+
+    // Удаляем старую таблицу users если она существует
+    diesel::sql_query("DROP TABLE IF EXISTS users")
+        .execute(&mut conn)
+        .expect("Ошибка удаления таблицы users");
 
     // Таблица персонала
     diesel::sql_query(

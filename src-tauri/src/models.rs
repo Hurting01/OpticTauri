@@ -1,26 +1,10 @@
 use diesel::prelude::*;
 use serde::{Serialize, Deserialize};
 
-// === Таблица users ===
-
-#[derive(Queryable, Selectable, Identifiable, Debug, Clone)]
-#[diesel(table_name = crate::schema::users)]
-pub struct User {
-    pub id: i32,
-    pub name: String,
-    pub created_at: String,
-}
-
-#[derive(Insertable)]
-#[diesel(table_name = crate::schema::users)]
-pub struct NewUser<'a> {
-    pub name: &'a str,
-}
-
 // === Таблица tasks ===
 
 #[derive(Queryable, Selectable, Identifiable, Associations, Debug, Clone)]
-#[diesel(belongs_to(User))]
+#[diesel(belongs_to(Staff, foreign_key = user_id))]
 #[diesel(table_name = crate::schema::tasks)]
 pub struct Task {
     pub id: i32,
@@ -150,7 +134,7 @@ pub struct NewCashOperation<'a> {
 // === Таблица schedule ===
 
 #[derive(Queryable, Selectable, Identifiable, Associations, Debug, Clone)]
-#[diesel(belongs_to(User))]
+#[diesel(belongs_to(Staff, foreign_key = user_id))]
 #[diesel(table_name = crate::schema::schedule)]
 pub struct Schedule {
     pub id: i32,
@@ -170,7 +154,7 @@ pub struct NewSchedule<'a> {
 // === Таблица bonuses ===
 
 #[derive(Queryable, Selectable, Identifiable, Associations, Debug, Clone)]
-#[diesel(belongs_to(User))]
+#[diesel(belongs_to(Staff, foreign_key = user_id))]
 #[diesel(table_name = crate::schema::bonuses)]
 pub struct Bonus {
     pub id: i32,
@@ -295,7 +279,7 @@ pub struct NewConversionNote<'a> {
 // === Таблица salary ===
 
 #[derive(Queryable, Selectable, Identifiable, Associations, Debug, Clone)]
-#[diesel(belongs_to(User))]
+#[diesel(belongs_to(Staff, foreign_key = user_id))]
 #[diesel(table_name = crate::schema::salary)]
 pub struct Salary {
     pub id: i32,

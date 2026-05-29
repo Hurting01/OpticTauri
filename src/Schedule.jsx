@@ -133,7 +133,7 @@ const Schedule = ({ month, year }) => {
 
   return (
     <div className="p-4 fade-in">
-      <NavigationHeader title="📈 График" />
+      <NavigationHeader title="График" />
 
       <Container fluid className="p-0">
         {/* Заголовок */}
@@ -141,7 +141,7 @@ const Schedule = ({ month, year }) => {
           <Card.Body className="py-3">
             <div className="d-flex justify-content-between align-items-center">
               <h1 className={styles.pageTitle}>
-                📅 График — {monthNames[month - 1]} {year}
+                График — {monthNames[month - 1]} {year}
               </h1>
               <Button variant="primary" onClick={handleOpenModal} className={styles.addButton}>
                 + Добавить запись

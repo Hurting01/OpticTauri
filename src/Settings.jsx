@@ -96,29 +96,29 @@ const Settings = () => {
 
   return (
     <div className="p-4 fade-in">
-      <NavigationHeader title="⚙️ Настройки" />
+      <NavigationHeader title="Настройки" />
 
       <Nav variant="tabs" className="mb-3 reports-nav">
         <Nav.Item>
           <Nav.Link active={activeTab === 'salary'} onClick={() => setActiveTab('salary')}>
-            💰 Заработная плата
+            Заработная плата
           </Nav.Link>
         </Nav.Item>
         <Nav.Item>
           <Nav.Link active={activeTab === 'hours'} onClick={() => setActiveTab('hours')}>
-            🕐 Нормы часов
+            Нормы часов
           </Nav.Link>
         </Nav.Item>
         <Nav.Item>
           <Nav.Link active={activeTab === 'staff'} onClick={() => setActiveTab('staff')}>
-            👥 Персонал и должности
+            Персонал и должности
           </Nav.Link>
         </Nav.Item>
       </Nav>
 
       {activeTab === 'salary' && (
         <Card>
-          <Card.Header className="app-header">💰 Заработная плата</Card.Header>
+          <Card.Header className="app-header">Заработная плата</Card.Header>
           <Card.Body>
             <Form.Group className="mb-3">
               <Form.Label>ЗП Продавцы-консультанты (₽)</Form.Label>
@@ -150,7 +150,7 @@ const Settings = () => {
 
       {activeTab === 'hours' && (
         <Card>
-          <Card.Header className="app-header">🕐 Нормы часов</Card.Header>
+          <Card.Header className="app-header">Нормы часов</Card.Header>
           <Card.Body>
             <Form.Group className="mb-3">
               <Form.Label>Норма часов у оптик-консультантов</Form.Label>
@@ -191,7 +191,7 @@ const Settings = () => {
       {activeTab === 'staff' && (
         <Card>
           <Card.Header className="app-header d-flex justify-content-between align-items-center">
-            <span>👥 Персонал и должности</span>
+            <span>Персонал и должности</span>
             <Button variant="outline-primary" size="sm" onClick={addEmployee}>
               + Добавить
             </Button>

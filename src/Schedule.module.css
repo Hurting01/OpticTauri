@@ -2,14 +2,14 @@
 
 .scheduleContainer {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #eef2f6;
   padding-bottom: 2rem;
 }
 
 .headerCard {
   background: white;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 8px rgba(15, 23, 42, 0.08);
   border: none;
   margin-bottom: 1.5rem;
 }
@@ -31,7 +31,7 @@
 .tableCard {
   background: white;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 8px rgba(15, 23, 42, 0.08);
   border: none;
   margin-bottom: 1.5rem;
   overflow: hidden;
@@ -50,7 +50,7 @@
 }
 
 .headerRow {
-  background: linear-gradient(135deg, #ffd1dc 0%, #ffe5e5 100%);
+  background: #e8eef5;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -69,7 +69,7 @@
   min-width: 140px;
   text-align: left;
   padding-left: 12px !important;
-  background: linear-gradient(135deg, #ffd1dc 0%, #ffe5e5 100%);
+  background: #e8eef5;
   position: sticky;
   left: 0;
   z-index: 11;
@@ -78,7 +78,7 @@
 .monthLabel {
   font-size: 14px;
   font-weight: 700;
-  color: #c0392b;
+  color: #2f5f8f;
 }
 
 .dayHeader {
@@ -101,11 +101,11 @@
 .hoursColumn,
 .daysColumn {
   min-width: 60px;
-  background: linear-gradient(135deg, #ffd1dc 0%, #ffe5e5 100%);
+  background: #e8eef5;
 }
 
 .serviceTypeRow {
-  background: #ffeb3b;
+  background: #eef3d8;
   font-weight: 600;
   color: #333;
 }
@@ -167,7 +167,7 @@
 .legendCard {
   background: white;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 8px rgba(15, 23, 42, 0.08);
   border: none;
 }
 
@@ -214,8 +214,8 @@
   }
 
   .addButton {
-    background: #667eea;
-    border-color: #667eea;
+    background: #2f5f8f;
+    border-color: #2f5f8f;
   }
 
   .addButton:hover {
@@ -228,18 +228,18 @@
   }
 
   .headerRow th {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #2f5f8f;
     color: white;
     border-right-color: #555;
     border-bottom-color: #555;
   }
 
   .nameColumn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #2f5f8f;
   }
 
   .monthLabel {
-    color: #ffeb3b;
+    color: #eef3d8;
   }
 
   .dayNumber,
@@ -249,11 +249,11 @@
 
   .hoursColumn,
   .daysColumn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #2f5f8f;
   }
 
   .serviceTypeRow {
-    background: #ffeb3b;
+    background: #eef3d8;
   }
 
   .serviceTypeCell {

@@ -21,16 +21,16 @@ const NavigationHeader = ({ title, showBackButton = false, backUrl = '/' }) => {
           ) : (
             <div className="d-flex gap-2 top-buttons">
               <Button variant="light" onClick={() => navigate('/reports')}>
-                📊 Отчеты
+                Отчеты
               </Button>
               <Button variant="light" onClick={() => navigate('/schedule')}>
-                📈 График
+                График
               </Button>
               <Button variant="light" onClick={() => {}}>
-                💰 Касса
+                Касса
               </Button>
               <Button variant="light" onClick={() => navigate('/settings')}>
-                ⚙️ Настройки
+                Настройки
               </Button>
               {!isHome && (
                 <Button variant="light" onClick={() => navigate('/')} title="Главная" className="home-btn">

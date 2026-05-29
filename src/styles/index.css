@@ -67,7 +67,7 @@ body {
 }
 
 .table-header {
-  background: #e8eef5;
+  background: #cfdceb;
   color: #333;
   position: sticky;
   top: 0;
@@ -168,7 +168,7 @@ body {
 }
 
 .app-header {
-  background: #e8eef5;
+  background: #cfdceb;
   color: #333;
   font-weight: 600;
   border: none;
@@ -235,7 +235,7 @@ body {
 }
 
 .past-tasks-header {
-  background: #e8eef5;
+  background: #cfdceb;
 }
 
 /* Календарь */
@@ -292,7 +292,7 @@ body {
 }
 
 .calendar-cell-selected {
-  background: #e8eef5;
+  background: #cfdceb;
   border-color: #2f5f8f;
 }
 
@@ -532,7 +532,7 @@ body {
 }
 
 .tasks-sidebar-card .calendar-header {
-  background: #e8eef5 !important;
+  background: #cfdceb !important;
   color: #333 !important;
   font-size: 11px !important;
   padding: 4px 8px !important;

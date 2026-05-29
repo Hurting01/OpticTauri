@@ -24,3 +24,4 @@ dist-ssr
 *.sw?
 .vscode/extensions.json
 package-lock.json
+src-tauri/erp.db

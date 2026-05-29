@@ -75,9 +75,14 @@ const Settings = () => {
       setNewPositionName('');
       setShowAddModal(false);
       
-      const created = await invoke('create_position', { name: newPositionName });
-      if (created) {
-        setPositions(prev => [...prev, created]);
+      try {
+        const created = await invoke('create_position', { name: newPositionName });
+        if (created) {
+          setPositions(prev => [...prev, created]);
+        }
+      } catch (err) {
+        console.error('Failed to create position:', err);
+        alert('Ошибка сохранения должности: ' + err);
       }
     } else if (addMode === 'employee') {
       if (!selectedPositionId || !newFullName.trim()) return;

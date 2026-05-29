@@ -161,7 +161,7 @@ const Settings = () => {
     if (!editingStaff || !selectedPositionId || !newFullName.trim()) return;
     
     try {
-      const updated = await invoke('update_staff', { staffId: editingStaff.id, fullName: newFullName, positionId: Number(selectedPositionId) });
+      const updated = await invoke('update_staff', { staffId: editingStaff.id, newFullName, newPositionId: Number(selectedPositionId) });
       const position = positions.find(p => p.id === Number(selectedPositionId));
       setStaff(prev => prev.map(s => s.id === editingStaff.id ? { ...updated, position_name: position?.name || '' } : s));
       setEditingStaff(null);

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Button, Form, Table, Row, Col, Modal } from 'react-bootstrap';
+import { invoke } from '@tauri-apps/api/core';
 import NavigationHeader from './components/NavigationHeader';
 
 const DaySheet = ({ month, year }) => {
@@ -103,6 +104,15 @@ const DaySheet = ({ month, year }) => {
   const totalSalesPages = Math.ceil(sales.length / salesPerPage);
   const currentSales = sales.slice(salePage * salesPerPage, (salePage + 1) * salesPerPage);
 
+  const getDayData = () => {
+    const value = localStorage.getItem(`day:${year}-${month}-${dayNum}`);
+    return value ? JSON.parse(value) : null;
+  };
+
+  const saveDayData = (data) => {
+    localStorage.setItem(`day:${year}-${month}-${dayNum}`, JSON.stringify(data));
+  };
+
   // Загрузка данных
   useEffect(() => {
     loadData();
@@ -110,7 +120,7 @@ const DaySheet = ({ month, year }) => {
   }, [day, month, year]);
 
   const loadData = async () => {
-    const data = await window.electronAPI.getDayData(dayNum, month, year);
+    const data = getDayData();
     if (data) {
       setDayEmployees(data.employees || [{ id: null, position: '', fullName: '' }, { id: null, position: '', fullName: '' }]);
       setCashMorning(data.cashMorning || '');
@@ -121,7 +131,20 @@ const DaySheet = ({ month, year }) => {
   };
 
   const loadEmployees = async () => {
-    const employees = await EmployeesService.getEmployees();
+    const [staff, positions] = await Promise.all([
+      invoke('get_staff'),
+      invoke('get_positions')
+    ]);
+    const employees = staff.map((employee) => {
+      const position = positions.find((item) => item.id === employee.position_id);
+      return {
+        ...employee,
+        fullName: employee.full_name,
+        isActive: employee.is_active !== 0,
+        position: position?.name || '',
+        position_name: position?.name || ''
+      };
+    });
     setAllEmployees(employees);
   };
 
@@ -134,13 +157,13 @@ const DaySheet = ({ month, year }) => {
     saveTimeoutRef.current = setTimeout(() => {
       if (!isSavingRef.current) {
         isSavingRef.current = true;
-        window.electronAPI.saveDayData(dayNum, month, year, {
+        Promise.resolve(saveDayData({
           employees: dayEmployees,
           cashMorning,
           cashEvening,
           sales,
           tasks
-        }).then(() => {
+        })).then(() => {
           isSavingRef.current = false;
         });
       }

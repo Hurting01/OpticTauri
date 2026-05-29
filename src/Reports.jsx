@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, Table, Nav, Form } from 'react-bootstrap';
+import { invoke } from '@tauri-apps/api/core';
 import NavigationHeader from './components/NavigationHeader';
 
 const Reports = ({ month, year }) => {
@@ -20,17 +21,41 @@ const Reports = ({ month, year }) => {
     'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
   ];
 
+  const getStored = (key) => {
+    const value = localStorage.getItem(key);
+    return value ? JSON.parse(value) : null;
+  };
+
+  const setStored = (key, value) => {
+    localStorage.setItem(key, JSON.stringify(value));
+  };
+
+  const reportKey = (prefix) => `${prefix}:${year}-${month}`;
+
   // === Функции загрузки ===
 
   const loadSettings = async () => {
-    const savedSettings = await window.electronAPI.getSettings();
+    const savedSettings = getStored('settings');
     if (savedSettings) {
       setSettings(savedSettings);
     }
   };
 
   const loadEmployees = async () => {
-    const employeesList = await EmployeesService.getEmployees();
+    const [staff, positions] = await Promise.all([
+      invoke('get_staff'),
+      invoke('get_positions')
+    ]);
+    const employeesList = staff.map((employee) => {
+      const position = positions.find((item) => item.id === employee.position_id);
+      return {
+        ...employee,
+        fullName: employee.full_name,
+        isActive: employee.is_active !== 0,
+        position: position?.name || '',
+        position_name: position?.name || ''
+      };
+    });
     setEmployees(employeesList);
   };
 
@@ -43,7 +68,7 @@ const Reports = ({ month, year }) => {
 
   const loadBonusData = async () => {
     try {
-      const savedData = await window.electronAPI.getBonusReport(month, year);
+      const savedData = getStored(reportKey('bonusReport'));
       if (savedData && savedData.data && savedData.data.length > 0) {
         setBonusData(savedData.data);
       } else {
@@ -61,7 +86,7 @@ const Reports = ({ month, year }) => {
           data.push(dayData);
         }
         setBonusData(data);
-        await window.electronAPI.saveBonusReport(month, year, { month, year, data });
+        setStored(reportKey('bonusReport'), { month, year, data });
       }
     } catch (error) {
       console.error('Error loading bonus data:', error);
@@ -70,7 +95,7 @@ const Reports = ({ month, year }) => {
 
   const loadSalaryData = async () => {
     try {
-      const savedData = await window.electronAPI.getSalaryReport(month, year);
+      const savedData = getStored(reportKey('salaryReport'));
       if (savedData && savedData.data && savedData.data.length > 0) {
         setSalaryData(savedData.data);
       } else {
@@ -81,7 +106,7 @@ const Reports = ({ month, year }) => {
           { name: 'Машалова Т.', base: 37500, bonus: 11795.47, extra: 8000, total: 54920.47 }
         ];
         setSalaryData(data);
-        await window.electronAPI.saveSalaryReport(month, year, { month, year, data });
+        setStored(reportKey('salaryReport'), { month, year, data });
       }
     } catch (error) {
       console.error('Error loading salary data:', error);
@@ -90,7 +115,7 @@ const Reports = ({ month, year }) => {
 
   const loadConversionData = async () => {
     try {
-      const savedData = await window.electronAPI.getConversionReport(month, year);
+      const savedData = getStored(reportKey('conversionReport'));
       if (savedData && savedData.data && savedData.data.length > 0) {
         setConversionData(savedData.data);
       } else {
@@ -99,7 +124,7 @@ const Reports = ({ month, year }) => {
           { date: '02.03.2026', employees: 'Каргина Е./Липенкова Т.', visitors: 12, sales: 2, conversion: 16.7, orders: 1, diagnostics: 0 }
         ];
         setConversionData(data);
-        await window.electronAPI.saveConversionReport(month, year, { month, year, data });
+        setStored(reportKey('conversionReport'), { month, year, data });
       }
     } catch (error) {
       console.error('Error loading conversion data:', error);
@@ -108,7 +133,7 @@ const Reports = ({ month, year }) => {
 
   const loadOrdersData = async () => {
     try {
-      const savedData = await window.electronAPI.getOrdersReport(month, year);
+      const savedData = getStored(reportKey('ordersReport'));
       if (savedData && savedData.data && savedData.data.length > 0) {
         setOrdersData(savedData.data);
       } else {
@@ -118,7 +143,7 @@ const Reports = ({ month, year }) => {
           { id: 3, item: 'Оправа пластиковая', status: '✓' }
         ];
         setOrdersData(data);
-        await window.electronAPI.saveOrdersReport(month, year, { month, year, data });
+        setStored(reportKey('ordersReport'), { month, year, data });
       }
     } catch (error) {
       console.error('Error loading orders data:', error);
@@ -147,7 +172,7 @@ const Reports = ({ month, year }) => {
   useEffect(() => {
     if (bonusData.length > 0) {
       const timer = setTimeout(() => {
-        window.electronAPI.saveBonusReport(month, year, { month, year, data: bonusData });
+        setStored(reportKey('bonusReport'), { month, year, data: bonusData });
         setSaveStatus('bonus');
         setTimeout(() => setSaveStatus(null), 2000);
       }, 1000);
@@ -159,7 +184,7 @@ const Reports = ({ month, year }) => {
   useEffect(() => {
     if (conversionData.length > 0) {
       const timer = setTimeout(() => {
-        window.electronAPI.saveConversionReport(month, year, { month, year, data: conversionData });
+        setStored(reportKey('conversionReport'), { month, year, data: conversionData });
         setSaveStatus('conversion');
         setTimeout(() => setSaveStatus(null), 2000);
       }, 1000);
@@ -171,7 +196,7 @@ const Reports = ({ month, year }) => {
   useEffect(() => {
     if (ordersData.length > 0) {
       const timer = setTimeout(() => {
-        window.electronAPI.saveOrdersReport(month, year, { month, year, data: ordersData });
+        setStored(reportKey('ordersReport'), { month, year, data: ordersData });
         setSaveStatus('orders');
         setTimeout(() => setSaveStatus(null), 2000);
       }, 1000);

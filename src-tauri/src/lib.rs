@@ -298,13 +298,13 @@ fn create_position(name: &str) -> Position {
 }
 
 #[tauri::command]
-fn delete_position(_id: i32) -> bool {
+fn delete_position(position_id: i32) -> bool {
     let database_url = get_db_path();
     let mut conn = SqliteConnection::establish(&database_url)
         .expect("Ошибка подключения к базе данных");
 
     use schema::positions::dsl::*;
-    diesel::delete(positions.filter(id.eq(id)))
+    diesel::delete(positions.filter(id.eq(position_id)))
         .execute(&mut conn)
         .is_ok()
 }
@@ -340,13 +340,13 @@ fn create_staff(full_name: &str, position_id: i32) -> Staff {
 }
 
 #[tauri::command]
-fn delete_staff(_id: i32) -> bool {
+fn delete_staff(staff_id: i32) -> bool {
     let database_url = get_db_path();
     let mut conn = SqliteConnection::establish(&database_url)
         .expect("Ошибка подключения к базе данных");
 
     use schema::staff::dsl::*;
-    diesel::delete(staff.filter(id.eq(id)))
+    diesel::delete(staff.filter(id.eq(staff_id)))
         .execute(&mut conn)
         .is_ok()
 }

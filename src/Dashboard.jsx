@@ -47,6 +47,15 @@ const Dashboard = () => {
 
   const today = new Date().getDate();
 
+  const getDayData = (day) => {
+    const value = localStorage.getItem(`day:${currentYear}-${currentMonth}-${day}`);
+    return value ? JSON.parse(value) : null;
+  };
+
+  const saveDayData = (day, data) => {
+    localStorage.setItem(`day:${currentYear}-${currentMonth}-${day}`, JSON.stringify(data));
+  };
+
   // Загрузка задач
   useEffect(() => {
     loadAllTasks();
@@ -58,7 +67,7 @@ const Dashboard = () => {
 
     // Загружаем задачи за все дни месяца
     for (let day = 1; day <= daysInMonth; day++) {
-      const data = await window.electronAPI.getDayData(day, currentMonth, currentYear);
+      const data = getDayData(day);
       if (data && data.tasks && Array.isArray(data.tasks)) {
         const dayTasks = data.tasks.map(task => ({
           ...task,
@@ -81,8 +90,8 @@ const Dashboard = () => {
   };
 
   const saveTasks = async (tasks, day) => {
-    const data = await window.electronAPI.getDayData(day, currentMonth, currentYear);
-    await window.electronAPI.saveDayData(day, currentMonth, currentYear, {
+    const data = getDayData(day);
+    saveDayData(day, {
       ...data,
       tasks
     });
@@ -99,7 +108,7 @@ const Dashboard = () => {
     } else {
       // Для задач из прошлых дней
       // 1. Обновляем базу данных конкретного дня
-      const dayData = await window.electronAPI.getDayData(day, currentMonth, currentYear);
+      const dayData = getDayData(day);
       if (dayData && dayData.tasks) {
         const updatedTasks = dayData.tasks.map(task =>
           task.id === taskId ? { ...task, completed: true } : task

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Card, Button, Form, Table, Nav, Modal } from 'react-bootstrap';
+import { invoke } from '@tauri-apps/api/core';
 import NavigationHeader from './components/NavigationHeader';
 
 const Settings = () => {
@@ -35,21 +36,22 @@ const Settings = () => {
   }, [settings]);
 
   const loadData = async () => {
-    const savedSettings = await window.electronAPI.getSettings();
+    const value = localStorage.getItem('settings');
+    const savedSettings = value ? JSON.parse(value) : null;
     if (savedSettings) {
       const { employees: _, ...cleanSettings } = savedSettings;
       setSettings(cleanSettings);
     }
     
-    const positionsList = await window.electronAPI.getPositions();
+    const positionsList = await invoke('get_positions');
     setPositions(positionsList || []);
     
-    const staffList = await window.electronAPI.getStaff();
+    const staffList = await invoke('get_staff');
     setStaff(staffList || []);
   };
 
   const handleSaveSettings = async () => {
-    await window.electronAPI.saveSettings(settings);
+    localStorage.setItem('settings', JSON.stringify(settings));
   };
 
   const addPosition = () => {
@@ -73,7 +75,7 @@ const Settings = () => {
       setNewPositionName('');
       setShowAddModal(false);
       
-      const created = await window.electronAPI.createPosition(newPositionName);
+      const created = await invoke('create_position', { name: newPositionName });
       if (created) {
         setPositions(prev => [...prev, created]);
       }
@@ -85,7 +87,7 @@ const Settings = () => {
       setNewFullName('');
       setShowAddModal(false);
       
-      const created = await window.electronAPI.createStaff(newFullName, selectedPositionId);
+      const created = await invoke('create_staff', { fullName: newFullName, positionId: Number(selectedPositionId) });
       if (created) {
         const position = positions.find(p => p.id === selectedPositionId);
         setStaff(prev => [...prev, { ...created, position_name: position?.name || '' }]);
@@ -102,7 +104,7 @@ const Settings = () => {
 
   const removePosition = async (pos) => {
     if (window.confirm('Удалить должность?')) {
-      const success = await window.electronAPI.deletePosition(pos.id);
+      const success = await invoke('delete_position', { positionId: pos.id });
       if (success) {
         setPositions(prev => prev.filter(p => p.id !== pos.id));
       }
@@ -111,7 +113,7 @@ const Settings = () => {
 
   const removeStaff = async (emp) => {
     if (window.confirm('Удалить сотрудника?')) {
-      const success = await window.electronAPI.deleteStaff(emp.id);
+      const success = await invoke('delete_staff', { staffId: emp.id });
       if (success) {
         setStaff(prev => prev.filter(s => s.id !== emp.id));
       }

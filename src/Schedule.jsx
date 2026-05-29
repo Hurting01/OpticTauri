@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, Container, Button, Modal, Form } from 'react-bootstrap';
+import { invoke } from '@tauri-apps/api/core';
 import NavigationHeader from './components/NavigationHeader';
 import styles from './Schedule.module.css';
 
@@ -92,7 +93,22 @@ const Schedule = ({ month, year }) => {
 
   const loadEmployees = async () => {
     setIsLoadingEmployees(true);
-    const data = await EmployeesService.getEmployees(true);
+    const [staff, positions] = await Promise.all([
+      invoke('get_staff'),
+      invoke('get_positions')
+    ]);
+    const data = staff
+      .filter((employee) => employee.is_active !== 0)
+      .map((employee) => {
+        const position = positions.find((item) => item.id === employee.position_id);
+        return {
+          ...employee,
+          fullName: employee.full_name,
+          isActive: employee.is_active !== 0,
+          position: position?.name || '',
+          position_name: position?.name || ''
+        };
+      });
     setEmployees(data);
     setIsLoadingEmployees(false);
   };

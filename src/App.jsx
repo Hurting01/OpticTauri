@@ -10,6 +10,12 @@ function App() {
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
 
+  if (import.meta.env.PROD) {
+  document.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+  });
+}
+
   return (
     <Router>
       <div className="dashboard-container">

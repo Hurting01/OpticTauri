@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { Card, Button, Form, Table, Nav } from 'react-bootstrap';
+import { Card, Button, Form, Table, Nav, Modal } from 'react-bootstrap';
 import NavigationHeader from './components/NavigationHeader';
-import EmployeesService from './employeesService';
+import StaffService from './staffService';
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState('salary');
@@ -14,14 +14,19 @@ const Settings = () => {
     hoursPerShiftOptometrist: 10,
     managerBonus: 5000
   });
-  const [employees, setEmployees] = useState([]);
+  const [positions, setPositions] = useState([]);
+  const [staff, setStaff] = useState([]);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [addMode, setAddMode] = useState(null);
+  const [newPositionName, setNewPositionName] = useState('');
+  const [selectedPositionId, setSelectedPositionId] = useState('');
+  const [newFullName, setNewFullName] = useState('');
   const saveTimeoutRef = useRef(null);
 
   useEffect(() => {
     loadData();
   }, []);
 
-  // Автосохранение настроек
   useEffect(() => {
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     saveTimeoutRef.current = setTimeout(() => {
@@ -36,62 +41,87 @@ const Settings = () => {
       const { employees: _, ...cleanSettings } = savedSettings;
       setSettings(cleanSettings);
     }
-    const employeesList = await EmployeesService.getEmployees();
-    setEmployees(employeesList);
+    
+    const positionsList = await window.electronAPI.getPositions();
+    setPositions(positionsList || []);
+    
+    const staffList = await window.electronAPI.getStaff();
+    setStaff(staffList || []);
   };
 
   const handleSaveSettings = async () => {
     await window.electronAPI.saveSettings(settings);
   };
 
-  // --- Сотрудники ---
-
-  const handleEmployeeChange = (id, field, value) => {
-    setEmployees(prev => prev.map(emp => 
-      emp.id === id ? { ...emp, [field]: value } : emp
-    ));
+  const addPosition = () => {
+    setAddMode('position');
+    setNewPositionName('');
+    setNewFullName('');
   };
 
-  const handleEmployeeBlur = async (emp) => {
-    if (emp.id) {
-      // Обновление существующего
-      await EmployeesService.updateEmployee(emp.id, {
-        position: emp.position,
-        fullName: emp.fullName
-      });
-    } else if (emp.position || emp.fullName) {
-      // Создание нового
-      const created = await EmployeesService.createEmployee({
-        position: emp.position,
-        fullName: emp.fullName,
-        isActive: true,
-        sortOrder: employees.length
-      });
+  const addNewEmployee = () => {
+    setAddMode('employee');
+    setNewPositionName('');
+    setSelectedPositionId(positions.length > 0 ? positions[0].id : '');
+    setNewFullName('');
+  };
+
+  const handleSaveNewItem = async () => {
+    if (addMode === 'position') {
+      if (!newPositionName.trim()) return;
+      
+      setAddMode(null);
+      setNewPositionName('');
+      setShowAddModal(false);
+      
+      const created = await window.electronAPI.createPosition(newPositionName);
       if (created) {
-        setEmployees(prev => prev.map(e => (e.id === null ? created : e)));
+        setPositions(prev => [...prev, created]);
       }
-    } else {
-      // Пустой — удаляем строку
-      setEmployees(prev => prev.filter(e => e !== emp));
+    } else if (addMode === 'employee') {
+      if (!selectedPositionId || !newFullName.trim()) return;
+      
+      setAddMode(null);
+      setSelectedPositionId('');
+      setNewFullName('');
+      setShowAddModal(false);
+      
+      const created = await window.electronAPI.createStaff(newFullName, selectedPositionId);
+      if (created) {
+        const position = positions.find(p => p.id === selectedPositionId);
+        setStaff(prev => [...prev, { ...created, position_name: position?.name || '' }]);
+      }
     }
   };
 
-  const addEmployee = () => {
-    setEmployees([...employees, { id: null, position: '', fullName: '' }]);
+  const handleCancelAdd = () => {
+    setAddMode(null);
+    setNewPositionName('');
+    setSelectedPositionId('');
+    setNewFullName('');
   };
 
-  const removeEmployee = async (emp) => {
-    if (emp.id) {
-      if (window.confirm('Удалить этого сотрудника?')) {
-        const success = await EmployeesService.deleteEmployee(emp.id);
-        if (success) {
-          setEmployees(prev => prev.filter(e => e.id !== emp.id));
-        }
+  const removePosition = async (pos) => {
+    if (window.confirm('Удалить должность?')) {
+      const success = await window.electronAPI.deletePosition(pos.id);
+      if (success) {
+        setPositions(prev => prev.filter(p => p.id !== pos.id));
       }
-    } else {
-      // Временный (не сохраненный)
-      setEmployees(prev => prev.filter(e => e !== emp));
     }
+  };
+
+  const removeStaff = async (emp) => {
+    if (window.confirm('Удалить сотрудника?')) {
+      const success = await window.electronAPI.deleteStaff(emp.id);
+      if (success) {
+        setStaff(prev => prev.filter(s => s.id !== emp.id));
+      }
+    }
+  };
+
+  const getPositionName = (positionId) => {
+    const pos = positions.find(p => p.id === positionId);
+    return pos ? pos.name : '';
   };
 
   return (
@@ -192,7 +222,7 @@ const Settings = () => {
         <Card>
           <Card.Header className="app-header d-flex justify-content-between align-items-center">
             <span>👥 Персонал и должности</span>
-            <Button variant="outline-primary" size="sm" onClick={addEmployee}>
+            <Button variant="outline-primary" size="sm" onClick={() => setShowAddModal(true)}>
               + Добавить
             </Button>
           </Card.Header>
@@ -206,34 +236,12 @@ const Settings = () => {
                 </tr>
               </thead>
               <tbody>
-                {employees.map((emp) => (
-                  <tr key={emp.id ?? `temp-${Math.random()}`}>
+                {staff.map((emp) => (
+                  <tr key={`staff-${emp.id}`}>
+                    <td>{getPositionName(emp.position_id)}</td>
+                    <td>{emp.full_name}</td>
                     <td>
-                      <Form.Control
-                        type="text"
-                        size="sm"
-                        value={emp.position}
-                        onChange={(e) => handleEmployeeChange(emp.id, 'position', e.target.value)}
-                        onBlur={() => handleEmployeeBlur(emp)}
-                        placeholder="Должность"
-                      />
-                    </td>
-                    <td>
-                      <Form.Control
-                        type="text"
-                        size="sm"
-                        value={emp.fullName}
-                        onChange={(e) => handleEmployeeChange(emp.id, 'fullName', e.target.value)}
-                        onBlur={() => handleEmployeeBlur(emp)}
-                        placeholder="ФИО"
-                      />
-                    </td>
-                    <td>
-                      <Button
-                        variant="outline-danger"
-                        size="sm"
-                        onClick={() => removeEmployee(emp)}
-                      >
+                      <Button variant="outline-danger" size="sm" onClick={() => removeStaff(emp)}>
                         ✕
                       </Button>
                     </td>
@@ -244,6 +252,71 @@ const Settings = () => {
           </Card.Body>
         </Card>
       )}
+
+      <Modal show={showAddModal} onHide={() => { setShowAddModal(false); handleCancelAdd(); }} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>{addMode === 'position' ? 'Добавить должность' : addMode === 'employee' ? 'Добавить сотрудника' : 'Добавить'}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {!addMode ? (
+            <div className="d-flex flex-column gap-2">
+              <Button variant="primary" size="lg" onClick={addPosition}>
+                ➕ Добавить должность
+              </Button>
+              <Button variant="success" size="lg" onClick={addNewEmployee}>
+                👤 Добавить сотрудника
+              </Button>
+            </div>
+          ) : (
+            <div className="d-flex flex-column gap-3">
+              <Form.Group>
+                <Form.Label>Должность</Form.Label>
+                {addMode === 'employee' ? (
+                  <Form.Select
+                    value={selectedPositionId}
+                    onChange={(e) => setSelectedPositionId(Number(e.target.value))}
+                    autoFocus
+                  >
+                    <option value="">Выберите должность</option>
+                    {positions.map((pos) => (
+                      <option key={pos.id} value={pos.id}>
+                        {pos.name}
+                      </option>
+                    ))}
+                  </Form.Select>
+                ) : (
+                  <Form.Control
+                    type="text"
+                    value={newPositionName}
+                    onChange={(e) => setNewPositionName(e.target.value)}
+                    placeholder="Введите должность"
+                    autoFocus
+                  />
+                )}
+              </Form.Group>
+              {addMode === 'employee' && (
+                <Form.Group>
+                  <Form.Label>ФИО</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={newFullName}
+                    onChange={(e) => setNewFullName(e.target.value)}
+                    placeholder="Введите ФИО"
+                  />
+                </Form.Group>
+              )}
+              <div className="d-flex gap-2">
+                <Button variant="primary" onClick={handleSaveNewItem}>
+                  Сохранить
+                </Button>
+                <Button variant="secondary" onClick={handleCancelAdd}>
+                  Отмена
+                </Button>
+              </div>
+            </div>
+          )}
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };

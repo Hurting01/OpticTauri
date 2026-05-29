@@ -178,3 +178,21 @@ diesel::table! {
         created_at -> Text,
     }
 }
+
+diesel::table! {
+    positions (id) {
+        id -> Integer,
+        name -> Text,
+        created_at -> Text,
+    }
+}
+
+diesel::table! {
+    staff (id) {
+        id -> Integer,
+        full_name -> Text,
+        position_id -> Integer,
+        is_active -> Integer,
+        created_at -> Text,
+    }
+}

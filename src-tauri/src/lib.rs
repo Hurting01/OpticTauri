@@ -3,6 +3,7 @@ mod schema;
 
 use diesel::prelude::*;
 use diesel::sqlite::SqliteConnection;
+use models::{Position, Staff, NewPosition, NewStaff};
 
 fn run_migrations() {
     let database_url = std::path::Path::new(&std::env::current_dir().unwrap_or_default())
@@ -231,6 +232,31 @@ fn run_migrations() {
     .execute(&mut conn)
     .expect("Ошибка создания таблицы position_counts");
 
+    // Таблица должностей
+    diesel::sql_query(
+        "CREATE TABLE IF NOT EXISTS positions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            created_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+        )",
+    )
+    .execute(&mut conn)
+    .expect("Ошибка создания таблицы positions");
+
+    // Таблица персонала
+    diesel::sql_query(
+        "CREATE TABLE IF NOT EXISTS staff (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            full_name TEXT NOT NULL,
+            position_id INTEGER NOT NULL,
+            is_active INTEGER NOT NULL DEFAULT 1,
+            created_at TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+            FOREIGN KEY (position_id) REFERENCES positions(id)
+        )",
+    )
+    .execute(&mut conn)
+    .expect("Ошибка создания таблицы staff");
+
     println!("✅ Все миграции применены успешно");
 }
 
@@ -240,12 +266,110 @@ fn greet(name: &str) -> String {
     format!("Привет, {}! Ты был поприветствован из Rust!", name)
 }
 
+fn get_db_path() -> String {
+    let database_url = std::path::Path::new(&std::env::current_dir().unwrap_or_default())
+        .join("erp.db");
+    database_url.to_string_lossy().to_string()
+}
+
+// === Команды для должностей ===
+
+#[tauri::command]
+fn get_positions() -> Vec<Position> {
+    let database_url = get_db_path();
+    let mut conn = SqliteConnection::establish(&database_url)
+        .expect("Ошибка подключения к базе данных");
+
+    use schema::positions::dsl::*;
+    positions.load::<Position>(&mut conn).unwrap_or_default()
+}
+
+#[tauri::command]
+fn create_position(name: &str) -> Position {
+    let database_url = get_db_path();
+    let mut conn = SqliteConnection::establish(&database_url)
+        .expect("Ошибка подключения к базе данных");
+
+    let new_pos = NewPosition { name };
+    diesel::insert_into(schema::positions::table)
+        .values(&new_pos)
+        .execute(&mut conn)
+        .expect("Ошибка создания должности");
+
+    schema::positions::table
+        .order(schema::positions::id.desc())
+        .first(&mut conn)
+        .unwrap()
+}
+
+#[tauri::command]
+fn delete_position(_id: i32) -> bool {
+    let database_url = get_db_path();
+    let mut conn = SqliteConnection::establish(&database_url)
+        .expect("Ошибка подключения к базе данных");
+
+    use schema::positions::dsl::*;
+    diesel::delete(positions.filter(id.eq(id)))
+        .execute(&mut conn)
+        .is_ok()
+}
+
+// === Команды для персонала ===
+
+#[tauri::command]
+fn get_staff() -> Vec<Staff> {
+    let database_url = get_db_path();
+    let mut conn = SqliteConnection::establish(&database_url)
+        .expect("Ошибка подключения к базе данных");
+
+    use schema::staff::dsl::*;
+    staff.load::<Staff>(&mut conn).unwrap_or_default()
+}
+
+#[tauri::command]
+fn create_staff(full_name: &str, position_id: i32) -> Staff {
+    let database_url = get_db_path();
+    let mut conn = SqliteConnection::establish(&database_url)
+        .expect("Ошибка подключения к базе данных");
+
+    let new_staff = NewStaff { full_name, position_id };
+    diesel::insert_into(schema::staff::table)
+        .values(&new_staff)
+        .execute(&mut conn)
+        .expect("Ошибка создания сотрудника");
+
+    schema::staff::table
+        .order(schema::staff::id.desc())
+        .first(&mut conn)
+        .unwrap()
+}
+
+#[tauri::command]
+fn delete_staff(_id: i32) -> bool {
+    let database_url = get_db_path();
+    let mut conn = SqliteConnection::establish(&database_url)
+        .expect("Ошибка подключения к базе данных");
+
+    use schema::staff::dsl::*;
+    diesel::delete(staff.filter(id.eq(id)))
+        .execute(&mut conn)
+        .is_ok()
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     run_migrations();
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(tauri::generate_handler![
+            greet,
+            get_positions,
+            create_position,
+            delete_position,
+            get_staff,
+            create_staff,
+            delete_staff
+        ])
         .run(tauri::generate_context!())
         .expect("Ошибка при запуске приложения");
 }

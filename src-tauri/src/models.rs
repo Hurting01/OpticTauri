@@ -1,4 +1,5 @@
 use diesel::prelude::*;
+use serde::{Serialize, Deserialize};
 
 // === Таблица users ===
 
@@ -356,4 +357,40 @@ pub struct PositionCount {
 pub struct NewPositionCount<'a> {
     pub product_name: &'a str,
     pub quantity: i32,
+}
+
+// === Таблица positions ===
+
+#[derive(Queryable, Selectable, Identifiable, Debug, Clone, Serialize, Deserialize)]
+#[diesel(table_name = crate::schema::positions)]
+pub struct Position {
+    pub id: i32,
+    pub name: String,
+    pub created_at: String,
+}
+
+#[derive(Insertable)]
+#[diesel(table_name = crate::schema::positions)]
+pub struct NewPosition<'a> {
+    pub name: &'a str,
+}
+
+// === Таблица staff ===
+
+#[derive(Queryable, Selectable, Identifiable, Associations, Debug, Clone, Serialize, Deserialize)]
+#[diesel(belongs_to(Position))]
+#[diesel(table_name = crate::schema::staff)]
+pub struct Staff {
+    pub id: i32,
+    pub full_name: String,
+    pub position_id: i32,
+    pub is_active: i32,
+    pub created_at: String,
+}
+
+#[derive(Insertable)]
+#[diesel(table_name = crate::schema::staff)]
+pub struct NewStaff<'a> {
+    pub full_name: &'a str,
+    pub position_id: i32,
 }

@@ -21,6 +21,8 @@ const Settings = () => {
   const [newPositionName, setNewPositionName] = useState('');
   const [selectedPositionId, setSelectedPositionId] = useState('');
   const [newFullName, setNewFullName] = useState('');
+  const [editingPosition, setEditingPosition] = useState(null);
+  const [editingStaff, setEditingStaff] = useState(null);
   const saveTimeoutRef = useRef(null);
 
   useEffect(() => {
@@ -125,6 +127,36 @@ const Settings = () => {
     }
   };
 
+  const handleEditPosition = (pos) => {
+    setEditingPosition(pos);
+    setNewPositionName(pos.name);
+  };
+
+  const handleEditStaff = (emp) => {
+    setEditingStaff(emp);
+    setSelectedPositionId(emp.position_id);
+    setNewFullName(emp.full_name);
+  };
+
+  const saveEditPosition = async () => {
+    if (!editingPosition || !newPositionName.trim()) return;
+    
+    try {
+      const updated = await invoke('update_position', { positionId: editingPosition.id, positionName: newPositionName });
+      setPositions(prev => prev.map(p => p.id === editingPosition.id ? updated : p));
+      setEditingPosition(null);
+      setNewPositionName('');
+    } catch (err) {
+      console.error('Failed to update position:', err);
+      alert('Ошибка обновления должности: ' + err);
+    }
+  };
+
+  const cancelEditPosition = () => {
+    setEditingPosition(null);
+    setNewPositionName('');
+  };
+
   const getPositionName = (positionId) => {
     const pos = positions.find(p => p.id === positionId);
     return pos ? pos.name : '';
@@ -146,8 +178,13 @@ const Settings = () => {
           </Nav.Link>
         </Nav.Item>
         <Nav.Item>
+          <Nav.Link active={activeTab === 'positions'} onClick={() => setActiveTab('positions')}>
+            Должности
+          </Nav.Link>
+        </Nav.Item>
+        <Nav.Item>
           <Nav.Link active={activeTab === 'staff'} onClick={() => setActiveTab('staff')}>
-            Персонал и должности
+            Персонал
           </Nav.Link>
         </Nav.Item>
       </Nav>
@@ -224,18 +261,76 @@ const Settings = () => {
         </Card>
       )}
 
+      {activeTab === 'positions' && (
+        <Card>
+          <Card.Header className="app-header d-flex justify-content-between align-items-center">
+            <span>Список должностей</span>
+            <Button variant="outline-primary" size="sm" onClick={() => { setShowAddModal(true); addPosition(); }}>
+              + Добавить должность
+            </Button>
+          </Card.Header>
+          <Card.Body>
+            {editingPosition ? (
+              <div className="d-flex gap-2 align-items-center">
+                <Form.Control
+                  type="text"
+                  value={newPositionName}
+                  onChange={(e) => setNewPositionName(e.target.value)}
+                  placeholder="Название должности"
+                  style={{ maxWidth: '300px' }}
+                  autoFocus
+                />
+                <Button variant="success" size="sm" onClick={saveEditPosition}>
+                  Сохранить
+                </Button>
+                <Button variant="secondary" size="sm" onClick={cancelEditPosition}>
+                  Отмена
+                </Button>
+              </div>
+            ) : (
+              <Table striped bordered hover size="sm" className="employees-table">
+                <thead>
+                  <tr>
+                    <th>Название</th>
+                    <th style={{ width: '150px' }}>Действия</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {positions.length === 0 ? (
+                    <tr>
+                      <td colSpan="2" className="text-center text-muted">Нет должностей</td>
+                    </tr>
+                  ) : (
+                    positions.map((pos) => (
+                      <tr key={`pos-${pos.id}`}>
+                        <td>{pos.name}</td>
+                        <td>
+                          <div className="d-flex gap-1">
+                            <Button variant="outline-primary" size="sm" onClick={() => handleEditPosition(pos)}>
+                              ✎
+                            </Button>
+                            <Button variant="outline-danger" size="sm" onClick={() => removePosition(pos)}>
+                              ✕
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </Table>
+            )}
+          </Card.Body>
+        </Card>
+      )}
+
       {activeTab === 'staff' && (
         <Card>
           <Card.Header className="app-header d-flex justify-content-between align-items-center">
-            <span>👥 Персонал и должности</span>
-            <div className="d-flex gap-2">
-              <Button variant="outline-primary" size="sm" onClick={() => { setShowAddModal(true); addPosition(); }}>
-                + Добавить должность
-              </Button>
-              <Button variant="outline-success" size="sm" onClick={() => { setShowAddModal(true); addNewEmployee(); }}>
-                + Добавить сотрудника
-              </Button>
-            </div>
+            <span>Персонал</span>
+            <Button variant="outline-success" size="sm" onClick={() => { setShowAddModal(true); addNewEmployee(); }}>
+              + Добавить сотрудника
+            </Button>
           </Card.Header>
           <Card.Body>
             <Table striped bordered hover size="sm" className="employees-table">
@@ -269,19 +364,9 @@ const Settings = () => {
           <Modal.Title>{addMode === 'position' ? 'Добавить должность' : addMode === 'employee' ? 'Добавить сотрудника' : 'Добавить'}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {!addMode ? (
-            <div className="d-flex flex-column gap-2">
-              <Button variant="primary" size="lg" onClick={addPosition}>
-                ➕ Добавить должность
-              </Button>
-              <Button variant="success" size="lg" onClick={addNewEmployee}>
-                👤 Добавить сотрудника
-              </Button>
-            </div>
-          ) : (
             <div className="d-flex flex-column gap-3">
               <Form.Group>
-                <Form.Label>Должность</Form.Label>
+                <Form.Label>{addMode === 'employee' ? 'Должность' : 'Название должности'}</Form.Label>
                 {addMode === 'employee' ? (
                   <Form.Select
                     value={selectedPositionId}
@@ -325,8 +410,7 @@ const Settings = () => {
                 </Button>
               </div>
             </div>
-          )}
-        </Modal.Body>
+          </Modal.Body>
       </Modal>
     </div>
   );

@@ -309,6 +309,23 @@ fn delete_position(position_id: i32) -> bool {
         .is_ok()
 }
 
+#[tauri::command]
+fn update_position(position_id: i32, position_name: &str) -> Position {
+    let database_url = get_db_path();
+    let mut conn = SqliteConnection::establish(&database_url)
+        .expect("Ошибка подключения к базе данных");
+
+    use schema::positions::dsl::*;
+    diesel::update(positions.filter(id.eq(position_id)))
+        .set(name.eq(position_name))
+        .execute(&mut conn)
+        .expect("Ошибка обновления должности");
+
+    positions.filter(id.eq(position_id))
+        .first(&mut conn)
+        .unwrap()
+}
+
 // === Команды для персонала ===
 
 #[tauri::command]
@@ -361,6 +378,7 @@ pub fn run() {
             get_positions,
             create_position,
             delete_position,
+            update_position,
             get_staff,
             create_staff,
             delete_staff

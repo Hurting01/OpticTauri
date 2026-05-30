@@ -1,0 +1,409 @@
+/* DaySheet.module.css — стили для страницы дневного листа */
+
+.container {
+  padding: 1.5rem;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.mainSection {
+  flex: 1;
+  min-width: 0;
+}
+
+.employeesSection {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 8px rgba(15, 23, 42, 0.08);
+  border: none;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.employeesSection h4 {
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.employeeRow {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  align-items: center;
+}
+
+.employeeRow input {
+  flex: 1;
+}
+
+.salesSection {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 8px rgba(15, 23, 42, 0.08);
+  border: none;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.salesSection h4 {
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.salesList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.saleItem {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+
+.saleItem.open {
+  border-color: #0d6efd;
+  box-shadow: 0 2px 8px rgba(13, 110, 253, 0.15);
+}
+
+.saleHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: #f8f9fa;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.saleHeader:hover {
+  background: #e9ecef;
+}
+
+.saleHeaderTitle {
+  font-weight: 500;
+  color: #333;
+}
+
+.saleHeaderPrice {
+  font-weight: 600;
+  color: #198754;
+}
+
+.saleBody {
+  padding: 1rem;
+  border-top: 1px solid #e0e0e0;
+  background: white;
+}
+
+.compactInput {
+  border-radius: 6px;
+}
+
+.salePagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.salePageBtn {
+  padding: 0.25rem 0.75rem;
+}
+
+.salePageInfo {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.summaryRow {
+  margin-bottom: 1.5rem;
+}
+
+.dayHeaderCard {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 8px rgba(15, 23, 42, 0.08);
+  border: none;
+  padding: 1rem;
+  text-align: center;
+}
+
+.dayHeaderCard h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.dayHeaderValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.dayHeaderValue.cash {
+  color: #198754;
+}
+
+.dayHeaderValue.cashless {
+  color: #0d6efd;
+}
+
+.dayHeaderValue.card {
+  color: #6f42c1;
+}
+
+.sidebarSection {
+  width: 300px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.compactCard {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 8px rgba(15, 23, 42, 0.08);
+  border: none;
+}
+
+.sidebarCard .cardHeader {
+  background: #cfdceb;
+  font-weight: 600;
+  color: #333;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.compactBody {
+  padding: 0.75rem;
+}
+
+.compactFormGroup {
+  margin-bottom: 0.75rem;
+}
+
+.compactFormGroup:last-child {
+  margin-bottom: 0;
+}
+
+.compactFormGroup label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #666;
+  margin-bottom: 0.25rem;
+}
+
+.calendarCard {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 8px rgba(15, 23, 42, 0.08);
+  border: none;
+}
+
+.calendarHeader {
+  background: #cfdceb;
+  font-weight: 600;
+  color: #333;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.calendarBody {
+  padding: 0.5rem;
+}
+
+.calendarGridHeader {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 0.5rem;
+}
+
+.calendarWeekday {
+  text-align: center;
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: #666;
+  padding: 0.25rem;
+}
+
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.calendarCell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+  min-height: 24px;
+}
+
+.calendarCell:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.calendarCellEmpty {
+  background: transparent;
+  border: none;
+  cursor: default;
+}
+
+.calendarCellToday {
+  background: #e7f1ff;
+  border-color: #0d6efd;
+  font-weight: 700;
+  color: #0d6efd;
+}
+
+.calendarCellSelected {
+  background: #d1e7dd;
+  border-color: #198754;
+  font-weight: 700;
+  color: #198754;
+}
+
+.tasksSidebarCard .cardHeader {
+  background: #fff3cd;
+  font-weight: 600;
+  color: #664d03;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.tasksBody {
+  padding: 0.75rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.taskAddRow {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.taskAddBtn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tasksSidebarList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.taskSidebarItem {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+
+.taskSidebarItem:hover {
+  border-color: #adb5bd;
+}
+
+.taskCompleted .taskSidebarText {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.taskSidebarHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  cursor: pointer;
+  background: #f8f9fa;
+}
+
+.taskSidebarHeader:hover {
+  background: #e9ecef;
+}
+
+.taskSidebarCheckbox {
+  margin: 0;
+}
+
+.taskSidebarText {
+  flex: 1;
+  font-size: 0.875rem;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.taskSidebarDelete {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.taskSidebarItem:hover .taskSidebarDelete {
+  opacity: 1;
+}
+
+.taskSidebarNotes {
+  padding: 0.5rem;
+  border-top: 1px solid #e0e0e0;
+  background: white;
+}
+
+.taskPagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.taskPageBtn {
+  padding: 0.125rem 0.5rem;
+  font-size: 0.75rem;
+}
+
+.taskPageInfo {
+  font-size: 0.75rem;
+  color: #666;
+}

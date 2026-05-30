@@ -1,0 +1,115 @@
+/* Reports.module.css — стили для страницы отчетов */
+
+.container {
+  padding: 1.5rem;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.reportsNav {
+  margin-bottom: 1.5rem;
+}
+
+.reportsNav .nav-link {
+  color: #495057;
+  font-weight: 500;
+  border-radius: 8px 8px 0 0;
+  padding: 0.75rem 1.25rem;
+}
+
+.reportsNav .nav-link.active {
+  background: white;
+  color: #0d6efd;
+  border-color: #dee2e6 #dee2e6 white;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 8px rgba(15, 23, 42, 0.08);
+  border: none;
+  margin-bottom: 1.5rem;
+}
+
+.cardHeader {
+  background: #cfdceb;
+  font-weight: 600;
+  color: #333;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.cardHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.saveStatus {
+  color: #198754;
+  font-size: 0.875rem;
+}
+
+.bonusTable {
+  font-size: 0.875rem;
+}
+
+.bonusTable th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+  padding: 0.75rem 0.5rem;
+  text-align: center;
+}
+
+.bonusTable td {
+  padding: 0.5rem;
+  vertical-align: middle;
+}
+
+.bonusInput {
+  text-align: center;
+  border-radius: 4px;
+}
+
+.emptyState {
+  text-align: center;
+  color: #6c757d;
+  padding: 3rem 1rem;
+}
+
+.emptyState p {
+  margin-bottom: 0.5rem;
+}
+
+.emptyState small {
+  color: #adb5bd;
+}
+
+.table {
+  font-size: 0.875rem;
+}
+
+.table th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+}
+
+.table td {
+  padding: 0.75rem;
+}
+
+.statusOk {
+  color: #198754;
+  font-weight: 600;
+}
+
+.statusError {
+  color: #dc3545;
+  font-weight: 600;
+}

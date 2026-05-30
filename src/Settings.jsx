@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Card, Button, Form, Table, Nav, Modal } from 'react-bootstrap';
 import { invoke } from '@tauri-apps/api/core';
 import NavigationHeader from './components/NavigationHeader';
+import styles from './Settings.module.css';
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState('salary');
@@ -185,10 +186,10 @@ const Settings = () => {
   };
 
   return (
-    <div className="p-4 fade-in">
+    <div className={styles.container}>
       <NavigationHeader title="Настройки" />
 
-      <Nav variant="tabs" className="mb-3 reports-nav">
+      <Nav variant="tabs" className={`mb-3 ${styles.settingsNav}`}>
         <Nav.Item>
           <Nav.Link active={activeTab === 'salary'} onClick={() => setActiveTab('salary')}>
             Заработная плата

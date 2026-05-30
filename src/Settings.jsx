@@ -103,12 +103,13 @@ const Settings = () => {
     }
   };
 
-  const handleCancelAdd = () => {
-    setAddMode(null);
-    setNewPositionName('');
-    setSelectedPositionId('');
-    setNewFullName('');
-  };
+   const handleCancelAdd = () => {
+     setAddMode(null);
+     setNewPositionName('');
+     setSelectedPositionId('');
+     setNewFullName('');
+     setShowAddModal(false);
+   };
 
   const removePosition = async (pos) => {
     if (window.confirm('Удалить должность?')) {

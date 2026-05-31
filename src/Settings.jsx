@@ -1,112 +1,130 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, Button, Form, Table, Nav, Modal } from 'react-bootstrap';
 import { invoke } from '@tauri-apps/api/core';
 import NavigationHeader from './components/NavigationHeader';
 
 const Settings = () => {
-  const [activeTab, setActiveTab] = useState('salary');
-  const [settings, setSettings] = useState({
-    salaryConsultant: 37500,
-    salaryOptometrist: 40000,
-    hoursNormConsultant: 180,
-    hoursNormOptometrist: 150,
-    hoursPerShiftConsultant: 12,
-    hoursPerShiftOptometrist: 10,
-    managerBonus: 5000
-  });
+  const [activeTab, setActiveTab] = useState('positions');
   const [positions, setPositions] = useState([]);
   const [staff, setStaff] = useState([]);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [addMode, setAddMode] = useState(null);
+  const [modalMode, setModalMode] = useState(null); // null | 'position' | 'employee'
   const [newPositionName, setNewPositionName] = useState('');
+  const [newPositionData, setNewPositionData] = useState({
+    norm_hours_consultant: null,
+    hours_per_shift: null,
+    salary_consultant: null,
+    manager_bonus: null,
+  });
   const [selectedPositionId, setSelectedPositionId] = useState('');
   const [newFullName, setNewFullName] = useState('');
   const [editingPosition, setEditingPosition] = useState(null);
   const [editingStaff, setEditingStaff] = useState(null);
-  const saveTimeoutRef = useRef(null);
 
   useEffect(() => {
     loadData();
   }, []);
 
-  useEffect(() => {
-    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-    saveTimeoutRef.current = setTimeout(() => {
-      handleSaveSettings();
-    }, 1000);
-    return () => clearTimeout(saveTimeoutRef.current);
-  }, [settings]);
-
   const loadData = async () => {
-    const value = localStorage.getItem('settings');
-    const savedSettings = value ? JSON.parse(value) : null;
-    if (savedSettings) {
-      const { employees: _, ...cleanSettings } = savedSettings;
-      setSettings(cleanSettings);
+    try {
+      const positionsList = await invoke('get_positions');
+      setPositions(positionsList || []);
+    } catch (err) {
+      console.error('Ошибка загрузки должностей:', err);
     }
-    
-    const positionsList = await invoke('get_positions');
-    setPositions(positionsList || []);
-    
-    const staffList = await invoke('get_staff');
-    setStaff(staffList || []);
+
+    try {
+      const staffList = await invoke('get_staff');
+      setStaff(staffList || []);
+    } catch (err) {
+      console.error('Ошибка загрузки персонала:', err);
+    }
   };
 
-  const handleSaveSettings = async () => {
-    localStorage.setItem('settings', JSON.stringify(settings));
+  const handleSavePosition = async (pos) => {
+    try {
+      await invoke('update_position', {
+        positionId: pos.id,
+        positionName: pos.name,
+        normHoursConsultant: pos.norm_hours_consultant,
+        normHoursOptometrist: null,
+        hoursPerShift: pos.hours_per_shift,
+        salaryConsultant: pos.salary_consultant,
+        salaryOptometrist: null,
+        managerBonus: pos.manager_bonus,
+      });
+      const updated = positions.find(p => p.id === pos.id);
+      if (updated) {
+        Object.assign(updated, pos);
+        setPositions([...positions]);
+      }
+    } catch (err) {
+      console.error('Ошибка сохранения:', err);
+      alert('Ошибка сохранения: ' + err);
+    }
   };
 
-  const addPosition = () => {
-    setAddMode('position');
+  const openAddPosition = () => {
+    setModalMode('position');
     setNewPositionName('');
-    setNewFullName('');
+    setNewPositionData({
+      norm_hours_consultant: null,
+      hours_per_shift: null,
+      salary_consultant: null,
+      manager_bonus: null,
+    });
   };
 
-  const addNewEmployee = () => {
-    setAddMode('employee');
+  const openAddEmployee = () => {
+    setModalMode('employee');
     setNewPositionName('');
     setSelectedPositionId(positions.length > 0 ? positions[0].id : '');
     setNewFullName('');
   };
 
   const handleSaveNewItem = async () => {
-    if (addMode === 'position') {
+    if (modalMode === 'position') {
       if (!newPositionName.trim()) return;
-      
-      setAddMode(null);
-      setNewPositionName('');
-      setShowAddModal(false);
-      
+
       try {
-        const created = await invoke('create_position', { name: newPositionName });
+        const created = await invoke('create_position', {
+          name: newPositionName,
+          normHoursConsultant: newPositionData.norm_hours_consultant,
+          normHoursOptometrist: null,
+          hoursPerShift: newPositionData.hours_per_shift,
+          salaryConsultant: newPositionData.salary_consultant,
+          salaryOptometrist: null,
+          managerBonus: newPositionData.manager_bonus,
+        });
         if (created) {
           setPositions(prev => [...prev, created]);
         }
       } catch (err) {
-        console.error('Failed to create position:', err);
-        alert('Ошибка сохранения должности: ' + err);
+        console.error('Ошибка создания должности:', err);
+        alert('Ошибка создания должности: ' + err);
       }
-    } else if (addMode === 'employee') {
+    } else if (modalMode === 'employee') {
       if (!selectedPositionId || !newFullName.trim()) return;
-      
-      setAddMode(null);
-      setSelectedPositionId('');
-      setNewFullName('');
-      setShowAddModal(false);
-      
-      const created = await invoke('create_staff', { fullName: newFullName, positionId: Number(selectedPositionId) });
-      if (created) {
-        const position = positions.find(p => p.id === selectedPositionId);
-        setStaff(prev => [...prev, { ...created, position_name: position?.name || '' }]);
+
+      try {
+        const created = await invoke('create_staff', {
+          fullName: newFullName,
+          positionId: Number(selectedPositionId)
+        });
+        if (created) {
+          const position = positions.find(p => p.id === selectedPositionId);
+          setStaff(prev => [...prev, { ...created, position_name: position?.name || '' }]);
+        }
+      } catch (err) {
+        console.error('Ошибка создания сотрудника:', err);
+        alert('Ошибка создания сотрудника: ' + err);
       }
     }
+
+    setModalMode(null);
   };
 
-  const handleCancelAdd = () => {
-    setAddMode(null);
-    setNewPositionName('');
-    setSelectedPositionId('');
-    setNewFullName('');
+  const closeModal = () => {
+    setModalMode(null);
   };
 
   const removePosition = async (pos) => {
@@ -140,14 +158,23 @@ const Settings = () => {
 
   const saveEditPosition = async () => {
     if (!editingPosition || !newPositionName.trim()) return;
-    
+
     try {
-      const updated = await invoke('update_position', { positionId: editingPosition.id, positionName: newPositionName });
+      const updated = await invoke('update_position', {
+        positionId: editingPosition.id,
+        positionName: newPositionName,
+        normHoursConsultant: editingPosition.norm_hours_consultant,
+        normHoursOptometrist: null,
+        hoursPerShift: editingPosition.hours_per_shift,
+        salaryConsultant: editingPosition.salary_consultant,
+        salaryOptometrist: null,
+        managerBonus: editingPosition.manager_bonus,
+      });
       setPositions(prev => prev.map(p => p.id === editingPosition.id ? updated : p));
       setEditingPosition(null);
       setNewPositionName('');
     } catch (err) {
-      console.error('Failed to update position:', err);
+      console.error('Ошибка обновления должности:', err);
       alert('Ошибка обновления должности: ' + err);
     }
   };
@@ -159,16 +186,20 @@ const Settings = () => {
 
   const saveEditStaff = async () => {
     if (!editingStaff || !selectedPositionId || !newFullName.trim()) return;
-    
+
     try {
-      const updated = await invoke('update_staff', { staffId: editingStaff.id, newFullName, newPositionId: Number(selectedPositionId) });
+      const updated = await invoke('update_staff', {
+        staffId: editingStaff.id,
+        newFullName,
+        newPositionId: Number(selectedPositionId),
+      });
       const position = positions.find(p => p.id === Number(selectedPositionId));
       setStaff(prev => prev.map(s => s.id === editingStaff.id ? { ...updated, position_name: position?.name || '' } : s));
       setEditingStaff(null);
       setSelectedPositionId('');
       setNewFullName('');
     } catch (err) {
-      console.error('Failed to update staff:', err);
+      console.error('Ошибка обновления сотрудника:', err);
       alert('Ошибка обновления сотрудника: ' + err);
     }
   };
@@ -184,21 +215,23 @@ const Settings = () => {
     return pos ? pos.name : '';
   };
 
+  const getPositionById = (positionId) => {
+    return positions.find(p => p.id === positionId) || null;
+  };
+
+  const formatSalary = (val) => {
+    return val != null ? Number(val).toLocaleString('ru-RU') : '—';
+  };
+
+  const isManager = (pos) => {
+    return pos && pos.name.toLowerCase().includes('управляющ');
+  };
+
   return (
     <div className="p-4 fade-in">
       <NavigationHeader title="Настройки" />
 
       <Nav variant="tabs" className="mb-3 reports-nav">
-        <Nav.Item>
-          <Nav.Link active={activeTab === 'salary'} onClick={() => setActiveTab('salary')}>
-            Заработная плата
-          </Nav.Link>
-        </Nav.Item>
-        <Nav.Item>
-          <Nav.Link active={activeTab === 'hours'} onClick={() => setActiveTab('hours')}>
-            Нормы часов
-          </Nav.Link>
-        </Nav.Item>
         <Nav.Item>
           <Nav.Link active={activeTab === 'positions'} onClick={() => setActiveTab('positions')}>
             Должности
@@ -211,89 +244,18 @@ const Settings = () => {
         </Nav.Item>
       </Nav>
 
-      {activeTab === 'salary' && (
-        <Card>
-          <Card.Header className="app-header">Заработная плата</Card.Header>
-          <Card.Body>
-            <Form.Group className="mb-3">
-              <Form.Label>ЗП Продавцы-консультанты (₽)</Form.Label>
-              <Form.Control
-                type="number"
-                value={settings.salaryConsultant}
-                onChange={(e) => setSettings({ ...settings, salaryConsultant: Number(e.target.value) })}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>ЗП Оптометристы (₽)</Form.Label>
-              <Form.Control
-                type="number"
-                value={settings.salaryOptometrist}
-                onChange={(e) => setSettings({ ...settings, salaryOptometrist: Number(e.target.value) })}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Доплата управляющего (₽)</Form.Label>
-              <Form.Control
-                type="number"
-                value={settings.managerBonus}
-                onChange={(e) => setSettings({ ...settings, managerBonus: Number(e.target.value) })}
-              />
-            </Form.Group>
-          </Card.Body>
-        </Card>
-      )}
-
-      {activeTab === 'hours' && (
-        <Card>
-          <Card.Header className="app-header">Нормы часов</Card.Header>
-          <Card.Body>
-            <Form.Group className="mb-3">
-              <Form.Label>Норма часов у оптик-консультантов</Form.Label>
-              <Form.Control
-                type="number"
-                value={settings.hoursNormConsultant}
-                onChange={(e) => setSettings({ ...settings, hoursNormConsultant: Number(e.target.value) })}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Норма часов у оптометристов</Form.Label>
-              <Form.Control
-                type="number"
-                value={settings.hoursNormOptometrist}
-                onChange={(e) => setSettings({ ...settings, hoursNormOptometrist: Number(e.target.value) })}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Часов/смена у продавцов-консультантов</Form.Label>
-              <Form.Control
-                type="number"
-                value={settings.hoursPerShiftConsultant}
-                onChange={(e) => setSettings({ ...settings, hoursPerShiftConsultant: Number(e.target.value) })}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Часов/смена у оптометристов</Form.Label>
-              <Form.Control
-                type="number"
-                value={settings.hoursPerShiftOptometrist}
-                onChange={(e) => setSettings({ ...settings, hoursPerShiftOptometrist: Number(e.target.value) })}
-              />
-            </Form.Group>
-          </Card.Body>
-        </Card>
-      )}
-
+      {/* === ДОЛЖНОСТИ === */}
       {activeTab === 'positions' && (
         <Card>
           <Card.Header className="app-header d-flex justify-content-between align-items-center">
-            <span>Список должностей</span>
-            <Button variant="outline-primary" size="sm" onClick={() => { setShowAddModal(true); addPosition(); }}>
+            <span>Таблица должностей</span>
+            <Button variant="outline-primary" size="sm" onClick={openAddPosition}>
               + Добавить должность
             </Button>
           </Card.Header>
           <Card.Body>
             {editingPosition ? (
-              <div className="d-flex gap-2 align-items-center">
+              <div className="d-flex flex-column gap-2">
                 <Form.Control
                   type="text"
                   value={newPositionName}
@@ -302,42 +264,94 @@ const Settings = () => {
                   style={{ maxWidth: '300px' }}
                   autoFocus
                 />
-                <Button variant="success" size="sm" onClick={saveEditPosition}>
-                  Сохранить
-                </Button>
-                <Button variant="secondary" size="sm" onClick={cancelEditPosition}>
-                  Отмена
-                </Button>
+                <Form.Control
+                  type="number"
+                  placeholder="Норма часов"
+                  value={editingPosition.norm_hours_consultant ?? ''}
+                  onChange={(e) => {
+                    const val = e.target.value === '' ? null : Number(e.target.value);
+                    setEditingPosition(prev => ({ ...prev, norm_hours_consultant: val }));
+                  }}
+                />
+                <Form.Control
+                  type="number"
+                  step="0.5"
+                  placeholder="Часов/смена"
+                  value={editingPosition.hours_per_shift ?? ''}
+                  onChange={(e) => {
+                    const val = e.target.value === '' ? null : Number(e.target.value);
+                    setEditingPosition(prev => ({ ...prev, hours_per_shift: val }));
+                  }}
+                />
+                <Form.Control
+                  type="number"
+                  placeholder="Зарплата (₽)"
+                  value={editingPosition.salary_consultant ?? ''}
+                  onChange={(e) => {
+                    const val = e.target.value === '' ? null : Number(e.target.value);
+                    setEditingPosition(prev => ({ ...prev, salary_consultant: val }));
+                  }}
+                />
+                <Form.Control
+                  type="number"
+                  placeholder="Дополнительные выплаты (₽)"
+                  value={editingPosition.manager_bonus ?? ''}
+                  onChange={(e) => {
+                    const val = e.target.value === '' ? null : Number(e.target.value);
+                    setEditingPosition(prev => ({ ...prev, manager_bonus: val }));
+                  }}
+                />
+                <div className="d-flex gap-2">
+                  <Button variant="success" size="sm" onClick={saveEditPosition}>
+                    Сохранить
+                  </Button>
+                  <Button variant="secondary" size="sm" onClick={cancelEditPosition}>
+                    Отмена
+                  </Button>
+                </div>
               </div>
             ) : (
               <Table striped bordered hover size="sm" className="employees-table">
                 <thead>
                   <tr>
-                    <th>Название</th>
-                    <th style={{ width: '150px' }}>Действия</th>
+                    <th>Должность</th>
+                    <th>Норма часов</th>
+                    <th>Часов/смена</th>
+                    <th>Зарплата (₽)</th>
+                    <th style={{ width: '120px' }}>Действия</th>
                   </tr>
                 </thead>
                 <tbody>
                   {positions.length === 0 ? (
                     <tr>
-                      <td colSpan="2" className="text-center text-muted">Нет должностей</td>
+                      <td colSpan="5" className="text-center text-muted">Нет должностей</td>
                     </tr>
                   ) : (
-                    positions.map((pos) => (
-                      <tr key={`pos-${pos.id}`}>
-                        <td>{pos.name}</td>
-                        <td>
-                          <div className="d-flex gap-1">
-                            <Button variant="outline-primary" size="sm" onClick={() => handleEditPosition(pos)}>
-                              ✎
-                            </Button>
-                            <Button variant="outline-danger" size="sm" onClick={() => removePosition(pos)}>
-                              ✕
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
+                    positions.map((pos) => {
+                      const mgr = isManager(pos);
+                      const salary = mgr
+                        ? (pos.salary_consultant || 0) + (pos.manager_bonus || 0)
+                        : (pos.salary_consultant || 0);
+
+                      return (
+                        <tr key={`pos-${pos.id}`}>
+                          <td><strong>{pos.name}</strong></td>
+                          <td>{pos.norm_hours_consultant ?? '—'}</td>
+                          <td>{pos.hours_per_shift ?? '—'}</td>
+                          <td>{salary > 0 ? formatSalary(salary) : '—'}</td>
+                          <td>
+                            <div className="d-flex gap-1">
+                              <Button variant="outline-primary" size="sm" onClick={() => handleEditPosition(pos)}>
+                                ✎
+                              </Button>
+                              <Button variant="outline-danger" size="sm" onClick={() => removePosition(pos)}>
+                                ✕
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
                   )}
                 </tbody>
               </Table>
@@ -346,21 +360,22 @@ const Settings = () => {
         </Card>
       )}
 
+      {/* === ПЕРСОНАЛ === */}
       {activeTab === 'staff' && (
         <Card>
           <Card.Header className="app-header d-flex justify-content-between align-items-center">
             <span>Персонал</span>
-            <Button variant="outline-success" size="sm" onClick={() => { setShowAddModal(true); addNewEmployee(); }}>
+            <Button variant="outline-success" size="sm" onClick={openAddEmployee}>
               + Добавить сотрудника
             </Button>
           </Card.Header>
           <Card.Body>
-            <Table striped bordered hover size="sm" className="employees-table">
+            <Table striped bordered hover size="sm">
               <thead>
                 <tr>
                   <th>Должность</th>
                   <th>ФИО</th>
-                  <th>Действия</th>
+                  <th style={{ width: '120px' }}>Действия</th>
                 </tr>
               </thead>
               <tbody>
@@ -429,58 +444,102 @@ const Settings = () => {
         </Card>
       )}
 
-      <Modal show={showAddModal} onHide={() => { setShowAddModal(false); handleCancelAdd(); }} centered>
+      {/* Единственное модальное окно */}
+      <Modal key={modalMode} show={modalMode !== null} onHide={closeModal} backdrop="static" keyboard={false} centered>
         <Modal.Header closeButton>
-          <Modal.Title>{addMode === 'position' ? 'Добавить должность' : addMode === 'employee' ? 'Добавить сотрудника' : 'Добавить'}</Modal.Title>
+          <Modal.Title>
+            {modalMode === 'position' ? 'Добавить должность' : 'Добавить сотрудника'}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-            <div className="d-flex flex-column gap-3">
-              <Form.Group>
-                <Form.Label>{addMode === 'employee' ? 'Должность' : 'Название должности'}</Form.Label>
-                {addMode === 'employee' ? (
-                  <Form.Select
-                    value={selectedPositionId}
-                    onChange={(e) => setSelectedPositionId(Number(e.target.value))}
-                    autoFocus
-                  >
-                    <option value="">Выберите должность</option>
-                    {positions.map((pos) => (
-                      <option key={pos.id} value={pos.id}>
-                        {pos.name}
-                      </option>
-                    ))}
-                  </Form.Select>
-                ) : (
-                  <Form.Control
-                    type="text"
-                    value={newPositionName}
-                    onChange={(e) => setNewPositionName(e.target.value)}
-                    placeholder="Введите должность"
-                    autoFocus
-                  />
-                )}
-              </Form.Group>
-              {addMode === 'employee' && (
+          <div className="d-flex flex-column gap-3">
+            <Form.Group>
+              <Form.Label>{modalMode === 'employee' ? 'Должность' : 'Название должности'}</Form.Label>
+              {modalMode === 'employee' ? (
+                <Form.Select
+                  value={selectedPositionId}
+                  onChange={(e) => setSelectedPositionId(Number(e.target.value))}
+                  autoFocus
+                >
+                  <option value="">Выберите должность</option>
+                  {positions.map((pos) => (
+                    <option key={pos.id} value={pos.id}>
+                      {pos.name}
+                    </option>
+                  ))}
+                </Form.Select>
+              ) : (
+                <Form.Control
+                  type="text"
+                  value={newPositionName}
+                  onChange={(e) => setNewPositionName(e.target.value)}
+                  placeholder="Введите должность"
+                  autoFocus
+                />
+              )}
+            </Form.Group>
+            {modalMode === 'position' && (
+              <>
                 <Form.Group>
-                  <Form.Label>ФИО</Form.Label>
+                  <Form.Label>Норма часов</Form.Label>
                   <Form.Control
-                    type="text"
-                    value={newFullName}
-                    onChange={(e) => setNewFullName(e.target.value)}
-                    placeholder="Введите ФИО"
+                    type="number"
+                    value={newPositionData.norm_hours_consultant ?? ''}
+                    onChange={(e) => setNewPositionData(prev => ({ ...prev, norm_hours_consultant: e.target.value === '' ? null : Number(e.target.value) }))}
+                    placeholder="Введите значение"
                   />
                 </Form.Group>
-              )}
-              <div className="d-flex gap-2">
-                <Button variant="primary" onClick={handleSaveNewItem}>
-                  Сохранить
-                </Button>
-                <Button variant="secondary" onClick={handleCancelAdd}>
-                  Отмена
-                </Button>
-              </div>
+                <Form.Group>
+                  <Form.Label>Часов/смена</Form.Label>
+                  <Form.Control
+                    type="number"
+                    step="0.5"
+                    value={newPositionData.hours_per_shift ?? ''}
+                    onChange={(e) => setNewPositionData(prev => ({ ...prev, hours_per_shift: e.target.value === '' ? null : Number(e.target.value) }))}
+                    placeholder="Введите значение"
+                  />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Зарплата (₽)</Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={newPositionData.salary_consultant ?? ''}
+                    onChange={(e) => setNewPositionData(prev => ({ ...prev, salary_consultant: e.target.value === '' ? null : Number(e.target.value) }))}
+                    placeholder="Введите значение"
+                  />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Дополнительные выплаты (₽)</Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={newPositionData.manager_bonus ?? ''}
+                    onChange={(e) => setNewPositionData(prev => ({ ...prev, manager_bonus: e.target.value === '' ? null : Number(e.target.value) }))}
+                    placeholder="Введите значение"
+                  />
+                </Form.Group>
+              </>
+            )}
+            {modalMode === 'employee' && (
+              <Form.Group>
+                <Form.Label>ФИО</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={newFullName}
+                  onChange={(e) => setNewFullName(e.target.value)}
+                  placeholder="Введите ФИО"
+                />
+              </Form.Group>
+            )}
+            <div className="d-flex gap-2">
+              <Button variant="primary" onClick={handleSaveNewItem}>
+                Сохранить
+              </Button>
+              <Button variant="secondary" onClick={closeModal}>
+                Отмена
+              </Button>
             </div>
-          </Modal.Body>
+          </div>
+        </Modal.Body>
       </Modal>
     </div>
   );

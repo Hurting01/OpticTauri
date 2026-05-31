@@ -227,11 +227,49 @@ fn run_migrations() {
         "CREATE TABLE IF NOT EXISTS positions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL UNIQUE,
+            norm_hours_consultant INTEGER DEFAULT 180,
+            norm_hours_optometrist INTEGER DEFAULT 150,
+            hours_per_shift REAL DEFAULT 12,
+            salary_consultant REAL DEFAULT 37500,
+            salary_optometrist REAL DEFAULT 40000,
+            manager_bonus REAL DEFAULT 5000,
             created_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
         )",
     )
     .execute(&mut conn)
     .expect("Ошибка создания таблицы positions");
+
+    // Миграция: добавляем новые столбцы в positions, если их нет
+    diesel::sql_query(
+        "ALTER TABLE positions ADD COLUMN norm_hours_consultant INTEGER DEFAULT 180",
+    )
+    .execute(&mut conn)
+    .ok();
+    diesel::sql_query(
+        "ALTER TABLE positions ADD COLUMN norm_hours_optometrist INTEGER DEFAULT 150",
+    )
+    .execute(&mut conn)
+    .ok();
+    diesel::sql_query(
+        "ALTER TABLE positions ADD COLUMN hours_per_shift REAL DEFAULT 12",
+    )
+    .execute(&mut conn)
+    .ok();
+    diesel::sql_query(
+        "ALTER TABLE positions ADD COLUMN salary_consultant REAL DEFAULT 37500",
+    )
+    .execute(&mut conn)
+    .ok();
+    diesel::sql_query(
+        "ALTER TABLE positions ADD COLUMN salary_optometrist REAL DEFAULT 40000",
+    )
+    .execute(&mut conn)
+    .ok();
+    diesel::sql_query(
+        "ALTER TABLE positions ADD COLUMN manager_bonus REAL DEFAULT 5000",
+    )
+    .execute(&mut conn)
+    .ok();
 
     // Удаляем старую таблицу users если она существует
     diesel::sql_query("DROP TABLE IF EXISTS users")
@@ -280,12 +318,28 @@ fn get_positions() -> Vec<Position> {
 }
 
 #[tauri::command]
-fn create_position(name: &str) -> Position {
+fn create_position(
+    name: &str,
+    norm_hours_consultant: Option<i32>,
+    norm_hours_optometrist: Option<i32>,
+    hours_per_shift: Option<f64>,
+    salary_consultant: Option<f64>,
+    salary_optometrist: Option<f64>,
+    manager_bonus: Option<f64>,
+) -> Position {
     let database_url = get_db_path();
     let mut conn = SqliteConnection::establish(&database_url)
         .expect("Ошибка подключения к базе данных");
 
-    let new_pos = NewPosition { name };
+    let new_pos = NewPosition {
+        name,
+        norm_hours_consultant,
+        norm_hours_optometrist,
+        hours_per_shift,
+        salary_consultant,
+        salary_optometrist,
+        manager_bonus,
+    };
     diesel::insert_into(schema::positions::table)
         .values(&new_pos)
         .execute(&mut conn)
@@ -310,14 +364,31 @@ fn delete_position(position_id: i32) -> bool {
 }
 
 #[tauri::command]
-fn update_position(position_id: i32, position_name: &str) -> Position {
+fn update_position(
+    position_id: i32,
+    position_name: &str,
+    norm_hours_consultant: Option<i32>,
+    norm_hours_optometrist: Option<i32>,
+    hours_per_shift: Option<f64>,
+    salary_consultant: Option<f64>,
+    salary_optometrist: Option<f64>,
+    manager_bonus: Option<f64>,
+) -> Position {
     let database_url = get_db_path();
     let mut conn = SqliteConnection::establish(&database_url)
         .expect("Ошибка подключения к базе данных");
 
     use schema::positions::dsl::*;
     diesel::update(positions.filter(id.eq(position_id)))
-        .set(name.eq(position_name))
+        .set((
+            name.eq(position_name),
+            norm_hours_consultant.eq(norm_hours_consultant),
+            norm_hours_optometrist.eq(norm_hours_optometrist),
+            hours_per_shift.eq(hours_per_shift),
+            salary_consultant.eq(salary_consultant),
+            salary_optometrist.eq(salary_optometrist),
+            manager_bonus.eq(manager_bonus),
+        ))
         .execute(&mut conn)
         .expect("Ошибка обновления должности");
 

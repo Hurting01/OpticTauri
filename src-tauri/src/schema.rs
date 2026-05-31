@@ -172,12 +172,18 @@ diesel::table! {
 }
 
 diesel::table! {
-    positions (id) {
-        id -> Integer,
-        name -> Text,
-        created_at -> Text,
-    }
-}
+     positions (id) {
+         id -> Integer,
+         name -> Text,
+         norm_hours_consultant -> Nullable<Integer>,
+         norm_hours_optometrist -> Nullable<Integer>,
+         hours_per_shift -> Nullable<Double>,
+         salary_consultant -> Nullable<Double>,
+         salary_optometrist -> Nullable<Double>,
+         manager_bonus -> Nullable<Double>,
+         created_at -> Text,
+     }
+ }
 
 diesel::table! {
     staff (id) {

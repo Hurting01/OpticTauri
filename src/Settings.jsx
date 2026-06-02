@@ -266,38 +266,42 @@ const Settings = () => {
                 />
                 <Form.Control
                   type="number"
+                  min="0"
                   placeholder="Норма часов"
                   value={editingPosition.norm_hours_consultant ?? ''}
                   onChange={(e) => {
-                    const val = e.target.value === '' ? null : Number(e.target.value);
+                    const val = e.target.value === '' ? null : Math.max(0, Number(e.target.value));
                     setEditingPosition(prev => ({ ...prev, norm_hours_consultant: val }));
                   }}
                 />
                 <Form.Control
                   type="number"
                   step="0.5"
+                  min="0"
                   placeholder="Часов/смена"
                   value={editingPosition.hours_per_shift ?? ''}
                   onChange={(e) => {
-                    const val = e.target.value === '' ? null : Number(e.target.value);
+                    const val = e.target.value === '' ? null : Math.max(0, Number(e.target.value));
                     setEditingPosition(prev => ({ ...prev, hours_per_shift: val }));
                   }}
                 />
                 <Form.Control
                   type="number"
+                  min="0"
                   placeholder="Зарплата (₽)"
                   value={editingPosition.salary_consultant ?? ''}
                   onChange={(e) => {
-                    const val = e.target.value === '' ? null : Number(e.target.value);
+                    const val = e.target.value === '' ? null : Math.max(0, Number(e.target.value));
                     setEditingPosition(prev => ({ ...prev, salary_consultant: val }));
                   }}
                 />
                 <Form.Control
                   type="number"
+                  min="0"
                   placeholder="Дополнительные выплаты (₽)"
                   value={editingPosition.manager_bonus ?? ''}
                   onChange={(e) => {
-                    const val = e.target.value === '' ? null : Number(e.target.value);
+                    const val = e.target.value === '' ? null : Math.max(0, Number(e.target.value));
                     setEditingPosition(prev => ({ ...prev, manager_bonus: val }));
                   }}
                 />
@@ -484,8 +488,9 @@ const Settings = () => {
                   <Form.Label>Норма часов</Form.Label>
                   <Form.Control
                     type="number"
+                    min="0"
                     value={newPositionData.norm_hours_consultant ?? ''}
-                    onChange={(e) => setNewPositionData(prev => ({ ...prev, norm_hours_consultant: e.target.value === '' ? null : Number(e.target.value) }))}
+                    onChange={(e) => setNewPositionData(prev => ({ ...prev, norm_hours_consultant: e.target.value === '' ? null : Math.max(0, Number(e.target.value)) }))}
                     placeholder="Введите значение"
                   />
                 </Form.Group>
@@ -494,8 +499,9 @@ const Settings = () => {
                   <Form.Control
                     type="number"
                     step="0.5"
+                    min="0"
                     value={newPositionData.hours_per_shift ?? ''}
-                    onChange={(e) => setNewPositionData(prev => ({ ...prev, hours_per_shift: e.target.value === '' ? null : Number(e.target.value) }))}
+                    onChange={(e) => setNewPositionData(prev => ({ ...prev, hours_per_shift: e.target.value === '' ? null : Math.max(0, Number(e.target.value)) }))}
                     placeholder="Введите значение"
                   />
                 </Form.Group>
@@ -503,8 +509,9 @@ const Settings = () => {
                   <Form.Label>Зарплата (₽)</Form.Label>
                   <Form.Control
                     type="number"
+                    min="0"
                     value={newPositionData.salary_consultant ?? ''}
-                    onChange={(e) => setNewPositionData(prev => ({ ...prev, salary_consultant: e.target.value === '' ? null : Number(e.target.value) }))}
+                    onChange={(e) => setNewPositionData(prev => ({ ...prev, salary_consultant: e.target.value === '' ? null : Math.max(0, Number(e.target.value)) }))}
                     placeholder="Введите значение"
                   />
                 </Form.Group>
@@ -512,8 +519,9 @@ const Settings = () => {
                   <Form.Label>Дополнительные выплаты (₽)</Form.Label>
                   <Form.Control
                     type="number"
+                    min="0"
                     value={newPositionData.manager_bonus ?? ''}
-                    onChange={(e) => setNewPositionData(prev => ({ ...prev, manager_bonus: e.target.value === '' ? null : Number(e.target.value) }))}
+                    onChange={(e) => setNewPositionData(prev => ({ ...prev, manager_bonus: e.target.value === '' ? null : Math.max(0, Number(e.target.value)) }))}
                     placeholder="Введите значение"
                   />
                 </Form.Group>

@@ -1,0 +1,44 @@
+/* NavigationHeader.module.css — стили для навигационного заголовка */
+
+.topPanel {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 8px rgba(15, 23, 42, 0.08);
+  border: none;
+  margin-bottom: 1.5rem;
+}
+
+.topPanelBody {
+  padding: 1rem 1.5rem;
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.topButtons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.homeBtn {
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.homeBtn svg {
+  width: 24px;
+  height: 24px;
+}

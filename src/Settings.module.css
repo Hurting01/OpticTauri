@@ -1,0 +1,153 @@
+/* Settings.module.css — стили для страницы настроек */
+
+.container {
+  padding: 1.5rem;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.settingsNav {
+  margin-bottom: 1.5rem;
+}
+
+.settingsNav .nav-link {
+  color: #495057;
+  font-weight: 500;
+  border-radius: 8px 8px 0 0;
+  padding: 0.75rem 1.25rem;
+}
+
+.settingsNav .nav-link.active {
+  background: white;
+  color: #0d6efd;
+  border-color: #dee2e6 #dee2e6 white;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 8px rgba(15, 23, 42, 0.08);
+  border: none;
+  margin-bottom: 1.5rem;
+}
+
+.cardHeader {
+  background: #cfdceb;
+  font-weight: 600;
+  color: #333;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.cardBody {
+  padding: 1.5rem;
+}
+
+.formGroup {
+  margin-bottom: 1.25rem;
+}
+
+.formGroup:last-child {
+  margin-bottom: 0;
+}
+
+.formLabel {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.formControl {
+  border-radius: 8px;
+  border: 1px solid #ced4da;
+  padding: 0.625rem 0.875rem;
+}
+
+.formControl:focus {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.table {
+  font-size: 0.875rem;
+}
+
+.table th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+}
+
+.table td {
+  padding: 0.75rem;
+  vertical-align: middle;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.editBtn, .deleteBtn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+}
+
+.addButton {
+  margin-top: 1rem;
+  font-weight: 500;
+}
+
+.modalHeader {
+  background: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.modalTitle {
+  font-weight: 600;
+  color: #333;
+}
+
+.modalBody {
+  padding: 1.5rem;
+}
+
+.modalFooter {
+  border-top: 1px solid #dee2e6;
+  padding: 1rem 1.5rem;
+}
+
+.formSelect {
+  border-radius: 8px;
+  border: 1px solid #ced4da;
+  padding: 0.625rem 0.875rem;
+}
+
+.formSelect:focus {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.emptyState {
+  text-align: center;
+  color: #6c757d;
+  padding: 2rem 1rem;
+}
+
+.emptyState p {
+  margin-bottom: 0;
+}

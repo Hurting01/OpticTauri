@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Button, Form, Table, Row, Col, Modal } from 'react-bootstrap';
 import { invoke } from '@tauri-apps/api/core';
 import NavigationHeader from './components/NavigationHeader';
+import styles from './DaySheet.module.css';
 
 const DaySheet = ({ month, year }) => {
   const { day } = useParams();
@@ -288,18 +289,18 @@ const DaySheet = ({ month, year }) => {
   const totalCard = totalCash + totalCashless;
 
   return (
-    <div className="p-4 fade-in">
-      <NavigationHeader 
-        title={`${dayNum} ${monthNamesGenitive[month - 1]} ${year}`} 
+    <div className={styles.container}>
+      <NavigationHeader
+        title={`${dayNum} ${monthNamesGenitive[month - 1]} ${year}`}
         showBackButton={true}
         backUrl="/"
       />
 
       <div className="d-flex gap-4">
         {/* Основной контент */}
-        <div className="day-main-section">
+        <div className={styles.mainSection}>
           {/* Сотрудники */}
-          <div className="employees-section">
+          <div className={styles.employeesSection}>
             <h4>Сотрудники</h4>
             {dayEmployees.map((emp, idx) => (
               <div key={idx} className="employee-row">
@@ -342,16 +343,16 @@ const DaySheet = ({ month, year }) => {
           </div>
 
           {/* Продажи */}
-          <div className="sales-section">
+          <div className={styles.salesSection}>
             <h4>🛍️ Продажи</h4>
-            <div className="sales-list">
+            <div className={styles.salesList}>
               {currentSales.map((sale) => (
-                <div key={sale.id} className={`sale-item ${openAccordion === sale.id ? 'open' : ''}`}>
-                  <div className="sale-header" onClick={() => setOpenAccordion(openAccordion === sale.id ? null : sale.id)}>
-                    <span className="sale-header-title">{sale.name || 'Новая продажа'}</span>
-                    <span className="sale-header-price">{sale.price ? parseFloat(sale.price).toLocaleString('ru-RU') + ' ₽' : '0 ₽'}</span>
+                <div key={sale.id} className={`${styles.saleItem} ${openAccordion === sale.id ? styles.open : ''}`}>
+                  <div className={styles.saleHeader} onClick={() => setOpenAccordion(openAccordion === sale.id ? null : sale.id)}>
+                    <span className={styles.saleHeaderTitle}>{sale.name || 'Новая продажа'}</span>
+                    <span className={styles.saleHeaderPrice}>{sale.price ? parseFloat(sale.price).toLocaleString('ru-RU') + ' ₽' : '0 ₽'}</span>
                   </div>
-                  <div className="sale-body">
+                  <div className={styles.saleBody}>
                     <Row className="mb-2">
                       <Col md={6}>
                         <Form.Group>
@@ -361,7 +362,7 @@ const DaySheet = ({ month, year }) => {
                             size="sm"
                             value={sale.name}
                             onChange={(e) => updateSale(sale.id, 'name', e.target.value)}
-                            className="compact-input"
+                            className={styles.compactInput}
                           />
                         </Form.Group>
                       </Col>
@@ -373,7 +374,7 @@ const DaySheet = ({ month, year }) => {
                             size="sm"
                             value={sale.price}
                             onChange={(e) => updateSale(sale.id, 'price', e.target.value)}
-                            className="compact-input"
+                            className={styles.compactInput}
                           />
                         </Form.Group>
                       </Col>
@@ -388,7 +389,7 @@ const DaySheet = ({ month, year }) => {
                             value={sale.sph}
                             onChange={(e) => updateSale(sale.id, 'sph', e.target.value)}
                             list="sph-options"
-                            className="compact-input"
+                            className={styles.compactInput}
                           />
                         </Form.Group>
                       </Col>
@@ -401,7 +402,7 @@ const DaySheet = ({ month, year }) => {
                             value={sale.cyl}
                             onChange={(e) => updateSale(sale.id, 'cyl', e.target.value)}
                             list="cyl-options"
-                            className="compact-input"
+                            className={styles.compactInput}
                           />
                         </Form.Group>
                       </Col>
@@ -414,7 +415,7 @@ const DaySheet = ({ month, year }) => {
                             value={sale.ax}
                             onChange={(e) => updateSale(sale.id, 'ax', e.target.value)}
                             list="ax-options"
-                            className="compact-input"
+                            className={styles.compactInput}
                           />
                         </Form.Group>
                       </Col>
@@ -426,7 +427,7 @@ const DaySheet = ({ month, year }) => {
                             size="sm"
                             value={sale.add}
                             onChange={(e) => updateSale(sale.id, 'add', e.target.value)}
-                            className="compact-input"
+                            className={styles.compactInput}
                           />
                         </Form.Group>
                       </Col>
@@ -440,7 +441,7 @@ const DaySheet = ({ month, year }) => {
                             size="sm"
                             value={sale.pd}
                             onChange={(e) => updateSale(sale.id, 'pd', e.target.value)}
-                            className="compact-input"
+                            className={styles.compactInput}
                           />
                         </Form.Group>
                       </Col>
@@ -452,7 +453,7 @@ const DaySheet = ({ month, year }) => {
                             size="sm"
                             value={sale.material}
                             onChange={(e) => updateSale(sale.id, 'material', e.target.value)}
-                            className="compact-input"
+                            className={styles.compactInput}
                           />
                         </Form.Group>
                       </Col>
@@ -464,7 +465,7 @@ const DaySheet = ({ month, year }) => {
                             size="sm"
                             value={sale.coating}
                             onChange={(e) => updateSale(sale.id, 'coating', e.target.value)}
-                            className="compact-input"
+                            className={styles.compactInput}
                           />
                         </Form.Group>
                       </Col>
@@ -484,23 +485,23 @@ const DaySheet = ({ month, year }) => {
               + Добавить продажу
             </Button>
             {totalSalesPages > 1 && (
-              <div className="sale-pagination">
+              <div className={styles.salePagination}>
                 <Button
                   variant="outline-secondary"
                   size="sm"
                   disabled={salePage === 0}
                   onClick={prevSalePage}
-                  className="sale-page-btn"
+                  className={styles.salePageBtn}
                 >
                   ←
                 </Button>
-                <span className="sale-page-info">{salePage + 1} / {totalSalesPages}</span>
+                <span className={styles.salePageInfo}>{salePage + 1} / {totalSalesPages}</span>
                 <Button
                   variant="outline-secondary"
                   size="sm"
                   disabled={salePage === totalSalesPages - 1}
                   onClick={nextSalePage}
-                  className="sale-page-btn"
+                  className={styles.salePageBtn}
                 >
                   →
                 </Button>
@@ -509,79 +510,79 @@ const DaySheet = ({ month, year }) => {
           </div>
 
           {/* Итоги */}
-          <Row className="mb-4">
+          <Row className={styles.summaryRow}>
             <Col md={4}>
-              <div className="day-header-card">
+              <div className={styles.dayHeaderCard}>
                 <h3>Наличные</h3>
-                <div className="day-header-value cash">{totalCash.toLocaleString('ru-RU')} ₽</div>
+                <div className={`${styles.dayHeaderValue} ${styles.cash}`}>{totalCash.toLocaleString('ru-RU')} ₽</div>
               </div>
             </Col>
             <Col md={4}>
-              <div className="day-header-card">
+              <div className={styles.dayHeaderCard}>
                 <h3>Безналичные</h3>
-                <div className="day-header-value cashless">{totalCashless.toLocaleString('ru-RU')} ₽</div>
+                <div className={`${styles.dayHeaderValue} ${styles.cashless}`}>{totalCashless.toLocaleString('ru-RU')} ₽</div>
               </div>
             </Col>
             <Col md={4}>
-              <div className="day-header-card">
+              <div className={styles.dayHeaderCard}>
                 <h3>Всего</h3>
-                <div className="day-header-value card">{totalCard.toLocaleString('ru-RU')} ₽</div>
+                <div className={`${styles.dayHeaderValue} ${styles.card}`}>{totalCard.toLocaleString('ru-RU')} ₽</div>
               </div>
             </Col>
           </Row>
         </div>
 
         {/* Сайдбар */}
-        <div className="day-sidebar-section">
+        <div className={styles.sidebarSection}>
           {/* Касса */}
-          <Card className="mb-3 compact-card sidebar-card">
-            <Card.Header className="app-header app-header-small text-center">Касса</Card.Header>
-            <Card.Body className="compact-body">
-              <Form.Group className="compact-form-group">
+          <Card className={`${styles.compactCard} mb-3 ${styles.sidebarCard}`}>
+            <Card.Header className={styles.cardHeader}>Касса</Card.Header>
+            <Card.Body className={styles.compactBody}>
+              <Form.Group className={styles.compactFormGroup}>
                 <Form.Label>Касса утро:</Form.Label>
                 <Form.Control
                   type="number"
                   value={cashMorning}
                   onChange={(e) => setCashMorning(e.target.value)}
                   placeholder="0"
-                  className="compact-input"
+                  className={styles.compactInput}
                 />
               </Form.Group>
-              <Form.Group className="compact-form-group">
+              <Form.Group className={styles.compactFormGroup}>
                 <Form.Label>Касса вечер:</Form.Label>
                 <Form.Control
                   type="number"
                   value={cashEvening}
                   onChange={(e) => setCashEvening(e.target.value)}
                   placeholder="0"
-                  className="compact-input"
+                  className={styles.compactInput}
                 />
               </Form.Group>
             </Card.Body>
           </Card>
 
           {/* Календарь */}
-          <Card className="calendar-card">
-            <Card.Header className="calendar-header app-header app-header-small">Календарь</Card.Header>
-            <Card.Body className="p-2">
-              <div className="calendar-grid-header">
+          <Card className={styles.calendarCard}>
+            <Card.Header className={styles.calendarHeader}>Календарь</Card.Header>
+            <Card.Body className={styles.calendarBody}>
+              <div className={styles.calendarGridHeader}>
                 {weekDays.map((d) => (
-                  <div key={d} className="calendar-weekday">
+                  <div key={d} className={styles.calendarWeekday}>
                     {d}
                   </div>
                 ))}
               </div>
               
-              <div className="calendar-grid">
+              <div className={styles.calendarGrid}>
                 {calendarDays.map((cell) => {
                   if (cell.type === 'empty') {
-                    return <div key={cell.key} className="calendar-cell calendar-cell-empty"></div>;
+                    return <div key={cell.key} className={`${styles.calendarCell} ${styles.calendarCellEmpty}`}></div>;
                   }
                   
                   return (
                     <button
                       key={cell.key}
-                      className={`calendar-cell ${cell.isToday ? 'calendar-cell-today' : ''} ${cell.day === dayNum ? 'calendar-cell-selected' : ''}`}
+                      className={`${styles.calendarCell} ${cell.isToday ? styles.calendarCellToday : ''} ${cell.day === dayNum ? styles.calendarCellSelected : ''}`}
                       onClick={() => navigate(`/day/${cell.day}`)}
                     >
                       {cell.day}
@@ -593,12 +594,12 @@ const DaySheet = ({ month, year }) => {
           </Card>
 
           {/* Задачи */}
-          <Card className="compact-card sidebar-card tasks-sidebar-card">
-            <Card.Header className="app-header app-header-small calendar-header">
+          <Card className={`${styles.compactCard} ${styles.tasksSidebarCard}`}>
+            <Card.Header className={styles.cardHeader}>
               <span>Задачи</span>
             </Card.Header>
-            <Card.Body className="compact-body tasks-body">
-              <div className="task-add-row">
+            <Card.Body className={`${styles.compactBody} ${styles.tasksBody}`}>
+              <div className={styles.taskAddRow}>
                 <Form.Control
                   type="text"
                   size="sm"
@@ -606,37 +607,37 @@ const DaySheet = ({ month, year }) => {
                   value={newTaskText}
                   onChange={(e) => setNewTaskText(e.target.value)}
                   onKeyPress={handleTaskKeyPress}
-                  className="compact-input"
+                  className={styles.compactInput}
                 />
                 <Button
                   variant="primary"
                   size="sm"
-                  className="task-add-btn"
+                  className={styles.taskAddBtn}
                   onClick={addTask}
                 >
                   +
                 </Button>
               </div>
 
-              <div className="tasks-sidebar-list">
+              <div className={styles.tasksSidebarList}>
                 {tasks.length === 0 ? (
                   <p className="text-muted small mb-0">Нет задач</p>
                 ) : (
                   <>
                     {currentTasks.map((task) => (
-                      <div key={task.id} className={`task-sidebar-item ${task.completed ? 'task-completed' : ''}`}>
-                        <div className="task-sidebar-header" onClick={() => setOpenTaskId(openTaskId === task.id ? null : task.id)}>
+                      <div key={task.id} className={`${styles.taskSidebarItem} ${task.completed ? styles.taskCompleted : ''}`}>
+                        <div className={styles.taskSidebarHeader} onClick={() => setOpenTaskId(openTaskId === task.id ? null : task.id)}>
                           <Form.Check
                             type="checkbox"
                             checked={task.completed}
                             onChange={() => toggleTask(task.id)}
-                            className="task-sidebar-checkbox"
+                            className={styles.taskSidebarCheckbox}
                           />
-                          <span className="task-sidebar-text">{task.text}</span>
+                          <span className={styles.taskSidebarText}>{task.text}</span>
                           <Button
                             variant="outline-danger"
                             size="sm"
-                            className="task-sidebar-delete"
+                            className={styles.taskSidebarDelete}
                             onClick={(e) => {
                               e.stopPropagation();
                               removeTask(task.id);
@@ -646,7 +647,7 @@ const DaySheet = ({ month, year }) => {
                           </Button>
                         </div>
                         {openTaskId === task.id && (
-                          <div className="task-sidebar-notes">
+                          <div className={styles.taskSidebarNotes}>
                             <Form.Control
                               as="textarea"
                               rows={2}
@@ -654,7 +655,7 @@ const DaySheet = ({ month, year }) => {
                               placeholder="Заметки (необязательно)"
                               value={task.notes || ''}
                               onChange={(e) => updateTaskNotes(task.id, e.target.value)}
-                              className="compact-input"
+                              className={styles.compactInput}
                             />
                           </div>
                         )}
@@ -662,17 +663,17 @@ const DaySheet = ({ month, year }) => {
                     ))}
                     
                     {totalPages > 1 && (
-                      <div className="task-pagination">
+                      <div className={styles.taskPagination}>
                         <Button
                           variant="outline-secondary"
                           size="sm"
                           disabled={taskPage === 0}
                           onClick={prevPage}
-                          className="task-page-btn"
+                          className={styles.taskPageBtn}
                         >
                           ←
                         </Button>
-                        <span className="task-page-info">
+                        <span className={styles.taskPageInfo}>
                           {taskPage + 1} / {totalPages}
                         </span>
                         <Button
@@ -680,7 +681,7 @@ const DaySheet = ({ month, year }) => {
                           size="sm"
                           disabled={taskPage === totalPages - 1}
                           onClick={nextPage}
-                          className="task-page-btn"
+                          className={styles.taskPageBtn}
                         >
                           →
                         </Button>

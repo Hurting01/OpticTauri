@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Button, Form } from 'react-bootstrap';
+import styles from './Dashboard.module.css';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -121,14 +122,14 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="p-4 fade-in">
+    <div className={styles.container}>
       {/* Верхняя панель */}
-      <Card className="mb-4 top-panel">
-        <Card.Body className="py-3">
-          <div className="d-flex justify-content-between align-items-center">
-            <h1 className="mb-0 month-title">{monthNames[currentMonth - 1]} {currentYear}</h1>
+      <Card className={styles.topPanel}>
+        <Card.Body className={styles.topPanelBody}>
+          <div className={styles.headerRow}>
+            <h1 className={styles.monthTitle}>{monthNames[currentMonth - 1]} {currentYear}</h1>
 
-            <div className="d-flex gap-2 top-buttons">
+            <div className={styles.topButtons}>
               <Button variant="light" onClick={() => navigate('/reports')}>
                 Отчеты
               </Button>
@@ -147,29 +148,29 @@ const Dashboard = () => {
       </Card>
 
       {/* Основной контент */}
-      <div className="main-content-wrapper">
+      <div className={styles.mainContentWrapper}>
         {/* Левая часть - Задачи на сегодня */}
-        <div className="left-section">
-          <Card className="tasks-card">
-            <Card.Header className="tasks-header app-header">
+        <div className={styles.leftSection}>
+          <Card className={styles.tasksCard}>
+            <Card.Header className={styles.tasksHeader}>
               Задачи на сегодня
             </Card.Header>
             <Card.Body>
-              <div className="tasks-list">
+              <div className={styles.tasksList}>
                 {todayTasks.length === 0 ? (
                   <p className="text-muted text-center">Нет задач на сегодня</p>
                 ) : (
                   todayTasks.map((task) => (
                     <div
                       key={`today-${task.id}`}
-                      className={`task-item ${task.completed ? 'task-completed' : ''}`}
+                      className={`${styles.taskItem} ${task.completed ? styles.taskCompleted : ''}`}
                     >
                       <Form.Check
                         type="checkbox"
                         checked={task.completed}
                         onChange={() => toggleTask(task.id, today)}
                         label={task.text}
-                        className="task-checkbox"
+                        className={styles.taskCheckbox}
                       />
                     </div>
                   ))
@@ -180,26 +181,26 @@ const Dashboard = () => {
 
           {/* Задачи из прошлых дней */}
           {pastTasks.length > 0 && (
-            <Card className="tasks-card past-tasks-card">
-              <Card.Header className="past-tasks-header app-header">
+            <Card className={`${styles.tasksCard} ${styles.pastTasksCard}`}>
+              <Card.Header className={styles.pastTasksHeader}>
                 Невыполненные задачи из прошлых дней
               </Card.Header>
               <Card.Body>
-                <div className="tasks-list">
+                <div className={styles.tasksList}>
                   {pastTasks.map((task) => (
                     <div
                       key={`past-${task.id}`}
-                      className={`task-item ${task.completed ? 'task-completed' : ''}`}
+                      className={`${styles.taskItem} ${task.completed ? styles.taskCompleted : ''}`}
                     >
-                      <div className="task-with-date">
+                      <div className={styles.taskWithDate}>
                         <Form.Check
                           type="checkbox"
                           checked={task.completed}
                           onChange={() => toggleTask(task.id, task.day)}
                           label={task.text}
-                          className="task-checkbox"
+                          className={styles.taskCheckbox}
                         />
-                        <span className="task-date-badge">{task.day} {monthNamesGenitive[currentMonth - 1]}</span>
+                        <span className={styles.taskDateBadge}>{task.day} {monthNamesGenitive[currentMonth - 1]}</span>
                       </div>
                     </div>
                   ))}
@@ -210,28 +211,28 @@ const Dashboard = () => {
         </div>
 
         {/* Правая часть - компактный календарь */}
-        <div className="right-section">
-          <Card className="calendar-card">
-            <Card.Header className="calendar-header app-header app-header-small">Календарь</Card.Header>
-            <Card.Body className="p-2">
-              <div className="calendar-grid-header">
+        <div className={styles.rightSection}>
+          <Card className={styles.calendarCard}>
+            <Card.Header className={styles.calendarHeader}>Календарь</Card.Header>
+            <Card.Body className={styles.calendarBody}>
+              <div className={styles.calendarGridHeader}>
                 {weekDays.map((day) => (
-                  <div key={day} className="calendar-weekday">
+                  <div key={day} className={styles.calendarWeekday}>
                     {day}
                   </div>
                 ))}
               </div>
 
-              <div className="calendar-grid">
+              <div className={styles.calendarGrid}>
                 {calendarDays.map((cell) => {
                   if (cell.type === 'empty') {
-                    return <div key={cell.key} className="calendar-cell calendar-cell-empty"></div>;
+                    return <div key={cell.key} className={`${styles.calendarCell} ${styles.calendarCellEmpty}`}></div>;
                   }
 
                   return (
                     <button
                       key={cell.key}
-                      className={`calendar-cell ${cell.isToday ? 'calendar-cell-today' : ''}`}
+                      className={`${styles.calendarCell} ${cell.isToday ? styles.calendarCellToday : ''}`}
                       onClick={() => navigate(`/day/${cell.day}`)}
                     >
                       {cell.day}

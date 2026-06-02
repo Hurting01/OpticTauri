@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, Table, Nav, Form } from 'react-bootstrap';
 import { invoke } from '@tauri-apps/api/core';
 import NavigationHeader from './components/NavigationHeader';
+import styles from './Reports.module.css';
 
 const Reports = ({ month, year }) => {
   const [activeTab, setActiveTab] = useState('bonus');
@@ -212,11 +213,11 @@ const Reports = ({ month, year }) => {
   }, [month, year]);
 
   return (
-    <div className="p-4 fade-in">
+    <div className={styles.container}>
       <NavigationHeader title="Отчеты" />
 
       {/* Навигация по отчетам */}
-      <Nav variant="tabs" className="mb-3 reports-nav">
+      <Nav variant="tabs" className={styles.reportsNav}>
         <Nav.Item>
           <Nav.Link active={activeTab === 'bonus'} onClick={() => setActiveTab('bonus')}>
             Бонусы
@@ -241,21 +242,21 @@ const Reports = ({ month, year }) => {
 
       {/* Бонусы */}
       {activeTab === 'bonus' && (
-        <Card>
-          <Card.Header className="app-header d-flex justify-content-between align-items-center">
+        <Card className={styles.card}>
+          <Card.Header className={`${styles.cardHeader} ${styles.cardHeaderRow}`}>
             <span>📋 Итоги бонусов по продажам за {monthNames[month - 1]} {year}</span>
             {saveStatus === 'bonus' && (
-              <span className="text-success small">✓ Сохранено</span>
+              <span className={styles.saveStatus}>✓ Сохранено</span>
             )}
           </Card.Header>
           <Card.Body>
             {(!employees || employees.filter(emp => emp.fullName).length === 0) ? (
-              <div className="text-center text-muted py-5">
+              <div className={styles.emptyState}>
                 <p className="mb-0">Сотрудники не указаны</p>
                 <small>Добавьте сотрудников в настройках</small>
               </div>
             ) : (
-              <Table striped bordered hover className="bonus-table">
+              <Table striped bordered hover className={styles.bonusTable}>
                 <thead>
                   <tr>
                     <th style={{ width: '60px' }}>День</th>
@@ -275,7 +276,7 @@ const Reports = ({ month, year }) => {
                             size="sm"
                             value={dayData[emp.fullName] || ''}
                             onChange={(e) => handleBonusChange(idx, emp.fullName, e.target.value)}
-                            className="bonus-input"
+                            className={styles.bonusInput}
                           />
                         </td>
                       ))}
@@ -290,8 +291,8 @@ const Reports = ({ month, year }) => {
 
       {/* ЗП */}
       {activeTab === 'salary' && (
-        <Card>
-          <Card.Header className="app-header">Заработная плата за {monthNames[month - 1]} {year}</Card.Header>
+        <Card className={styles.card}>
+          <Card.Header className={styles.cardHeader}>Заработная плата за {monthNames[month - 1]} {year}</Card.Header>
           <Card.Body>
             <Table striped bordered hover>
               <thead>
@@ -321,10 +322,10 @@ const Reports = ({ month, year }) => {
 
       {/* Конверсия */}
       {activeTab === 'conversion' && (
-        <Card>
-          <Card.Header className="app-header">Конверсия продаж</Card.Header>
+        <Card className={styles.card}>
+          <Card.Header className={styles.cardHeader}>Конверсия продаж</Card.Header>
           <Card.Body>
-            <Table striped bordered hover size="sm">
+            <Table striped bordered hover size="sm" className={styles.table}>
               <thead>
                 <tr>
                   <th>Дата</th>
@@ -356,10 +357,10 @@ const Reports = ({ month, year }) => {
 
       {/* Заказы */}
       {activeTab === 'orders' && (
-        <Card>
-          <Card.Header className="app-header">Заказ позиций</Card.Header>
+        <Card className={styles.card}>
+          <Card.Header className={styles.cardHeader}>Заказ позиций</Card.Header>
           <Card.Body>
-            <Table striped bordered hover>
+            <Table striped bordered hover className={styles.table}>
               <thead>
                 <tr>
                   <th>№</th>
@@ -373,7 +374,7 @@ const Reports = ({ month, year }) => {
                     <td>{order.id}</td>
                     <td>{order.item}</td>
                     <td>
-                      <span className={order.status === '✓' ? 'status-ok' : 'status-error'}>
+                      <span className={order.status === '✓' ? styles.statusOk : styles.statusError}>
                         {order.status}
                       </span>
                     </td>

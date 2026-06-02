@@ -322,13 +322,14 @@ const Settings = () => {
                     <th>Норма часов</th>
                     <th>Часов/смена</th>
                     <th>Зарплата (₽)</th>
+                    <th>Доп. выплаты (₽)</th>
                     <th style={{ width: '120px' }}>Действия</th>
                   </tr>
                 </thead>
                 <tbody>
                   {positions.length === 0 ? (
                     <tr>
-                      <td colSpan="5" className="text-center text-muted">Нет должностей</td>
+                      <td colSpan="6" className="text-center text-muted">Нет должностей</td>
                     </tr>
                   ) : (
                     positions.map((pos) => {
@@ -343,6 +344,7 @@ const Settings = () => {
                           <td>{pos.norm_hours_consultant ?? '—'}</td>
                           <td>{pos.hours_per_shift ?? '—'}</td>
                           <td>{salary > 0 ? formatSalary(salary) : '—'}</td>
+                          <td>{pos.manager_bonus != null && pos.manager_bonus > 0 ? formatSalary(pos.manager_bonus) : '—'}</td>
                           <td>
                             <div className="d-flex gap-1">
                               <Button variant="outline-primary" size="sm" onClick={() => handleEditPosition(pos)}>

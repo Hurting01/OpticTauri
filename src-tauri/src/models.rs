@@ -350,25 +350,21 @@ pub struct NewPositionCount<'a> {
 pub struct Position {
     pub id: i32,
     pub name: String,
-    pub norm_hours_consultant: Option<i32>,
-    pub norm_hours_optometrist: Option<i32>,
-    pub hours_per_shift: Option<f64>,
-    pub salary_consultant: Option<f64>,
-    pub salary_optometrist: Option<f64>,
-    pub manager_bonus: Option<f64>,
     pub created_at: String,
+    pub norm_hours: Option<i32>,
+    pub hours_per_shift: Option<f64>,
+    pub salary: Option<i32>,
+    pub additional_payments: Option<f64>,
 }
 
 #[derive(Insertable)]
 #[diesel(table_name = crate::schema::positions)]
 pub struct NewPosition<'a> {
     pub name: &'a str,
-    pub norm_hours_consultant: Option<i32>,
-    pub norm_hours_optometrist: Option<i32>,
+    pub norm_hours: Option<i32>,
     pub hours_per_shift: Option<f64>,
-    pub salary_consultant: Option<f64>,
-    pub salary_optometrist: Option<f64>,
-    pub manager_bonus: Option<f64>,
+    pub salary: Option<i32>,
+    pub additional_payments: Option<f64>,
 }
 
 // === Таблица staff ===

@@ -222,54 +222,291 @@ fn run_migrations() {
     .execute(&mut conn)
     .expect("Ошибка создания таблицы position_counts");
 
-    // Таблица должностей
-    diesel::sql_query(
-        "CREATE TABLE IF NOT EXISTS positions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL UNIQUE,
-            norm_hours_consultant INTEGER DEFAULT 180,
-            norm_hours_optometrist INTEGER DEFAULT 150,
-            hours_per_shift REAL DEFAULT 12,
-            salary_consultant REAL DEFAULT 37500,
-            salary_optometrist REAL DEFAULT 40000,
-            manager_bonus REAL DEFAULT 5000,
-            created_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
-        )",
-    )
-    .execute(&mut conn)
-    .expect("Ошибка создания таблицы positions");
+    // Таблица должностей - миграция со старой структуры на новую
+    // Проверяем существование таблицы через прямой SQL
+    #[derive(QueryableByName)]
+    struct TableCount {
+        #[diesel(sql_type = diesel::sql_types::BigInt)]
+        cnt: i64,
+    }
 
-    // Миграция: добавляем новые столбцы в positions, если их нет
-    diesel::sql_query(
-        "ALTER TABLE positions ADD COLUMN norm_hours_consultant INTEGER DEFAULT 180",
+    /// Возвращает true, если в таблице `table_name` есть колонка с именем `column_name`.
+    fn has_column(table_name: &str, column_name: &str, conn: &mut SqliteConnection) -> bool {
+        // Имя таблицы и колонки подставляем через format!, так как sqlite_master
+        // и pragma не поддерживают bind-параметры. Имена берутся из констант
+        // проекта, а не из пользовательского ввода, поэтому это безопасно.
+        let safe_table = table_name.replace('"', "\"\"");
+        let safe_col = column_name.replace('"', "\"\"");
+        // Считаем строки через `SELECT COUNT(*)` — так Diesel десериализует
+        // только одно числовое поле в `TableCount` (см. выше), и нам не нужно
+        // объявлять отдельную структуру под имя колонки.
+        let sql = format!(
+            "SELECT COUNT(*) AS cnt FROM pragma_table_info(\"{}\") WHERE name = '{}'",
+            safe_table, safe_col
+        );
+        diesel::sql_query(sql)
+            .load::<TableCount>(conn)
+            .map(|rows| rows.first().map(|r| r.cnt > 0).unwrap_or(false))
+            .unwrap_or(false)
+    }
+
+    let table_exists: bool = diesel::sql_query(
+        "SELECT COUNT(*) as cnt FROM sqlite_master WHERE type='table' AND name='positions'"
     )
-    .execute(&mut conn)
-    .ok();
-    diesel::sql_query(
-        "ALTER TABLE positions ADD COLUMN norm_hours_optometrist INTEGER DEFAULT 150",
-    )
-    .execute(&mut conn)
-    .ok();
-    diesel::sql_query(
-        "ALTER TABLE positions ADD COLUMN hours_per_shift REAL DEFAULT 12",
-    )
-    .execute(&mut conn)
-    .ok();
-    diesel::sql_query(
-        "ALTER TABLE positions ADD COLUMN salary_consultant REAL DEFAULT 37500",
-    )
-    .execute(&mut conn)
-    .ok();
-    diesel::sql_query(
-        "ALTER TABLE positions ADD COLUMN salary_optometrist REAL DEFAULT 40000",
-    )
-    .execute(&mut conn)
-    .ok();
-    diesel::sql_query(
-        "ALTER TABLE positions ADD COLUMN manager_bonus REAL DEFAULT 5000",
-    )
-    .execute(&mut conn)
-    .ok();
+    .load::<TableCount>(&mut conn)
+    .map(|results| results.first().map(|r| r.cnt > 0).unwrap_or(false))
+    .unwrap_or(false);
+
+    if !table_exists {
+        // Создаём таблицу с правильной структурой
+        diesel::sql_query(
+            "CREATE TABLE positions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL UNIQUE,
+                created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
+                norm_hours INTEGER,
+                hours_per_shift REAL DEFAULT 12,
+                salary INTEGER,
+                additional_payments REAL DEFAULT 5000
+            )"
+        )
+        .execute(&mut conn)
+        .expect("Ошибка создания таблицы positions");
+        println!("✅ Таблица positions создана");
+    } else {
+        // Проверяем наличие старых колонок через PRAGMA, а не через слепой SELECT.
+        // SELECT несуществующего столбца через Diesel::sql_query().execute()
+        // может возвращать Ok на некоторых версиях, что приводило к ложному
+        // срабатыванию блока миграции и панике "no such column: sallary".
+        let has_hour_norm = has_column("positions", "Hour_norm", &mut conn);
+        let has_sallary = has_column("positions", "sallary", &mut conn);
+        let has_sallary_bonus_space = has_column("positions", "sallary bonus", &mut conn);
+        let has_sallary_bonus = has_column("positions", "sallary_bonus", &mut conn);
+        let has_norm_hours_consultant = has_column("positions", "norm_hours_consultant", &mut conn);
+        let has_norm_hours_optometrist = has_column("positions", "norm_hours_optometrist", &mut conn);
+        let has_norm_hours = has_column("positions", "norm_hours", &mut conn);
+        let has_salary_consultant = has_column("positions", "salary_consultant", &mut conn);
+        let has_salary_optometrist = has_column("positions", "salary_optometrist", &mut conn);
+        let has_salary = has_column("positions", "salary", &mut conn);
+        let has_additional_payments = has_column("positions", "additional_payments", &mut conn);
+        let has_manager_bonus = has_column("positions", "manager_bonus", &mut conn);
+
+        let has_any_old_column = has_hour_norm
+            || has_sallary
+            || has_sallary_bonus_space
+            || has_sallary_bonus
+            || has_norm_hours_consultant
+            || has_norm_hours_optometrist;
+
+        if has_any_old_column {
+            println!("🔄 Начинаем миграцию таблицы positions...");
+
+            // Временно отключаем проверку внешних ключей
+            diesel::sql_query("PRAGMA foreign_keys = OFF")
+                .execute(&mut conn)
+                .expect("Ошибка отключения FK");
+
+            // Удаляем временную таблицу если она осталась от предыдущей миграции
+            diesel::sql_query("DROP TABLE IF EXISTS positions_new")
+                .execute(&mut conn)
+                .ok();
+
+            // Создаём временную таблицу с правильной структурой
+            diesel::sql_query(
+                "CREATE TABLE positions_new (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL UNIQUE,
+                    created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
+                    norm_hours INTEGER,
+                    hours_per_shift REAL DEFAULT 12,
+                    salary INTEGER,
+                    additional_payments REAL DEFAULT 5000
+                )"
+            )
+            .execute(&mut conn)
+            .expect("Ошибка создания таблицы positions_new");
+
+            // Копируем данные, обращаясь к старым колонкам только если они существуют.
+            // Несоответствующие колонки заменяются на NULL/дефолты, чтобы не
+            // получать ошибку "no such column" при повторной миграции.
+            // В норму часов записываем первое непустое значение из старых колонок
+            // (норма_консультант или норма_оптометрист или Hour_norm).
+            let norm_hours_expr = if has_norm_hours_consultant {
+                "COALESCE(norm_hours_consultant, norm_hours_optometrist)"
+            } else if has_hour_norm {
+                "\"Hour_norm\""
+            } else {
+                "NULL"
+            };
+            // Для новой колонки salary берём максимум из старых значений,
+            // чтобы не потерять данные ни по консультанту, ни по оптометристу.
+            let salary_expr = if has_salary_consultant && has_salary_optometrist {
+                "COALESCE(MAX(salary_consultant, salary_optometrist), 0)"
+            } else if has_salary_consultant {
+                "COALESCE(salary_consultant, 0)"
+            } else if has_salary_optometrist {
+                "COALESCE(salary_optometrist, 0)"
+            } else if has_sallary {
+                "COALESCE(sallary, 0)"
+            } else {
+                "0"
+            };
+            let additional_payments_expr = if has_sallary_bonus_space {
+                "\"sallary bonus\""
+            } else if has_sallary_bonus {
+                "sallary_bonus"
+            } else if has_manager_bonus {
+                "manager_bonus"
+            } else {
+                "5000"
+            };
+
+            let copy_sql = format!(
+                "INSERT INTO positions_new (id, name, created_at, norm_hours, hours_per_shift, salary, additional_payments)
+                 SELECT id, name, created_at, {}, hours_per_shift, {}, {}
+                 FROM positions",
+                norm_hours_expr, salary_expr, additional_payments_expr
+            );
+
+            diesel::sql_query(copy_sql)
+                .execute(&mut conn)
+                .expect("Ошибка копирования данных positions");
+
+            // Удаляем старую таблицу
+            diesel::sql_query("DROP TABLE positions")
+                .execute(&mut conn)
+                .expect("Ошибка удаления старой таблицы positions");
+
+            // Переименовываем новую таблицу
+            diesel::sql_query("ALTER TABLE positions_new RENAME TO positions")
+                .execute(&mut conn)
+                .expect("Ошибка переименования таблицы positions_new");
+
+            // Включаем проверку внешних ключей обратно
+            diesel::sql_query("PRAGMA foreign_keys = ON")
+                .execute(&mut conn)
+                .expect("Ошибка включения FK");
+
+            println!("✅ Таблица positions мигрирована: исправлены имена столбцов");
+        } else {
+            // Таблица уже имеет новую структуру, убеждаемся, что все нужные колонки существуют.
+            if !has_norm_hours {
+                println!("🔄 Добавляем столбец norm_hours в positions...");
+                diesel::sql_query("ALTER TABLE positions ADD COLUMN norm_hours INTEGER")
+                    .execute(&mut conn)
+                    .ok();
+            }
+
+            // Если раньше использовались две раздельные колонки зарплаты,
+            // а новой колонки `salary` ещё нет — добавляем её и мигрируем
+            // данные, взяв максимум из двух старых значений.
+            if !has_salary {
+                println!("🔄 Добавляем столбец salary в positions...");
+                diesel::sql_query("ALTER TABLE positions ADD COLUMN salary INTEGER")
+                    .execute(&mut conn)
+                    .expect("Ошибка добавления столбца salary");
+            }
+
+            if has_salary_consultant || has_salary_optometrist {
+                let migrate_sql = if has_salary_consultant && has_salary_optometrist {
+                    "UPDATE positions SET salary = COALESCE(MAX(salary_consultant, salary_optometrist), 0) \
+                     WHERE salary IS NULL OR typeof(salary) = 'text'"
+                } else if has_salary_consultant {
+                    "UPDATE positions SET salary = COALESCE(salary_consultant, 0) \
+                     WHERE salary IS NULL OR typeof(salary) = 'text'"
+                } else {
+                    "UPDATE positions SET salary = COALESCE(salary_optometrist, 0) \
+                     WHERE salary IS NULL OR typeof(salary) = 'text'"
+                };
+                diesel::sql_query(migrate_sql)
+                    .execute(&mut conn)
+                    .ok();
+            }
+
+            if !has_additional_payments {
+                println!("🔄 Добавляем столбец additional_payments в positions...");
+                diesel::sql_query("ALTER TABLE positions ADD COLUMN additional_payments REAL DEFAULT 5000")
+                    .execute(&mut conn)
+                    .ok();
+            }
+
+            // Если в БД остался старый столбец manager_bonus (из предыдущей
+            // версии схемы) — переносим данные в additional_payments и удаляем его,
+            // чтобы новая схема была единственным источником истины.
+            if has_manager_bonus {
+                diesel::sql_query(
+                    "UPDATE positions
+                     SET additional_payments = manager_bonus
+                     WHERE additional_payments IS NULL AND manager_bonus IS NOT NULL",
+                )
+                .execute(&mut conn)
+                .ok();
+
+                // SQLite < 3.35 не поддерживает DROP COLUMN, поэтому
+                // пересоздаём таблицу без старого столбца.
+                if has_column("positions", "id", &mut conn) {
+                    diesel::sql_query("PRAGMA foreign_keys = OFF")
+                        .execute(&mut conn)
+                        .ok();
+                    diesel::sql_query("DROP TABLE IF EXISTS positions_migrate")
+                        .execute(&mut conn)
+                        .ok();
+                    diesel::sql_query(
+                        "CREATE TABLE positions_migrate (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            name TEXT NOT NULL UNIQUE,
+                            created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
+                            norm_hours INTEGER,
+                            hours_per_shift REAL DEFAULT 12,
+                            salary INTEGER,
+                            additional_payments REAL DEFAULT 5000
+                        )",
+                    )
+                    .execute(&mut conn)
+                    .ok();
+                    diesel::sql_query(
+                        "INSERT INTO positions_migrate
+                            (id, name, created_at, norm_hours, hours_per_shift, salary, additional_payments)
+                         SELECT id, name, created_at, norm_hours, hours_per_shift,
+                                COALESCE(salary, 0),
+                                COALESCE(additional_payments, 5000)
+                         FROM positions",
+                    )
+                    .execute(&mut conn)
+                    .ok();
+                    diesel::sql_query("DROP TABLE positions")
+                        .execute(&mut conn)
+                        .ok();
+                    diesel::sql_query("ALTER TABLE positions_migrate RENAME TO positions")
+                        .execute(&mut conn)
+                        .ok();
+                    diesel::sql_query("PRAGMA foreign_keys = ON")
+                        .execute(&mut conn)
+                        .ok();
+                }
+            }
+        }
+
+        // Защитная очистка данных: после некорректной миграции значения
+        // могут оказаться нечисловыми (например, строка "sallary bonus"
+        // попала в колонку additional_payments). Приводим такие значения к NULL
+        // и заполняем дефолтами, чтобы приложение не падало при чтении.
+        diesel::sql_query(
+            "UPDATE positions
+             SET additional_payments = 5000
+             WHERE typeof(additional_payments) = 'text' OR additional_payments IS NULL"
+        )
+        .execute(&mut conn)
+        .ok();
+
+        diesel::sql_query(
+            "UPDATE positions
+             SET salary = COALESCE(salary, 0)
+             WHERE typeof(salary) = 'text' OR salary IS NULL"
+        )
+        .execute(&mut conn)
+        .ok();
+    }
 
     // Удаляем старую таблицу users если она существует
     diesel::sql_query("DROP TABLE IF EXISTS users")
@@ -320,12 +557,10 @@ fn get_positions() -> Vec<Position> {
 #[tauri::command]
 fn create_position(
     name: &str,
-    norm_hours_consultant: Option<i32>,
-    norm_hours_optometrist: Option<i32>,
+    norm_hours: Option<i32>,
     hours_per_shift: Option<f64>,
-    salary_consultant: Option<f64>,
-    salary_optometrist: Option<f64>,
-    manager_bonus: Option<f64>,
+    salary: Option<i32>,
+    additional_payments: Option<f64>,
 ) -> Position {
     let database_url = get_db_path();
     let mut conn = SqliteConnection::establish(&database_url)
@@ -333,12 +568,10 @@ fn create_position(
 
     let new_pos = NewPosition {
         name,
-        norm_hours_consultant,
-        norm_hours_optometrist,
+        norm_hours,
         hours_per_shift,
-        salary_consultant,
-        salary_optometrist,
-        manager_bonus,
+        salary,
+        additional_payments,
     };
     diesel::insert_into(schema::positions::table)
         .values(&new_pos)
@@ -367,12 +600,10 @@ fn delete_position(position_id: i32) -> bool {
 fn update_position(
     position_id: i32,
     position_name: &str,
-    norm_hours_consultant: Option<i32>,
-    norm_hours_optometrist: Option<i32>,
-    hours_per_shift: Option<f64>,
-    salary_consultant: Option<f64>,
-    salary_optometrist: Option<f64>,
-    manager_bonus: Option<f64>,
+    new_norm_hours: Option<i32>,
+    new_hours_per_shift: Option<f64>,
+    new_salary: Option<i32>,
+    new_additional_payments: Option<f64>,
 ) -> Position {
     let database_url = get_db_path();
     let mut conn = SqliteConnection::establish(&database_url)
@@ -382,12 +613,10 @@ fn update_position(
     diesel::update(positions.filter(id.eq(position_id)))
         .set((
             name.eq(position_name),
-            norm_hours_consultant.eq(norm_hours_consultant),
-            norm_hours_optometrist.eq(norm_hours_optometrist),
-            hours_per_shift.eq(hours_per_shift),
-            salary_consultant.eq(salary_consultant),
-            salary_optometrist.eq(salary_optometrist),
-            manager_bonus.eq(manager_bonus),
+            norm_hours.eq(new_norm_hours),
+            hours_per_shift.eq(new_hours_per_shift),
+            salary.eq(new_salary),
+            additional_payments.eq(new_additional_payments),
         ))
         .execute(&mut conn)
         .expect("Ошибка обновления должности");

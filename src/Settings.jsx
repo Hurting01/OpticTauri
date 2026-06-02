@@ -10,10 +10,10 @@ const Settings = () => {
   const [modalMode, setModalMode] = useState(null); // null | 'position' | 'employee'
   const [newPositionName, setNewPositionName] = useState('');
   const [newPositionData, setNewPositionData] = useState({
-    norm_hours_consultant: null,
+    norm_hours: null,
     hours_per_shift: null,
-    salary_consultant: null,
-    manager_bonus: null,
+    salary: null,
+    additional_payments: null,
   });
   const [selectedPositionId, setSelectedPositionId] = useState('');
   const [newFullName, setNewFullName] = useState('');
@@ -45,12 +45,10 @@ const Settings = () => {
       await invoke('update_position', {
         positionId: pos.id,
         positionName: pos.name,
-        normHoursConsultant: pos.norm_hours_consultant,
-        normHoursOptometrist: null,
+        normHours: pos.norm_hours,
         hoursPerShift: pos.hours_per_shift,
-        salaryConsultant: pos.salary_consultant,
-        salaryOptometrist: null,
-        managerBonus: pos.manager_bonus,
+        salary: pos.salary,
+        additionalPayments: pos.additional_payments,
       });
       const updated = positions.find(p => p.id === pos.id);
       if (updated) {
@@ -67,10 +65,10 @@ const Settings = () => {
     setModalMode('position');
     setNewPositionName('');
     setNewPositionData({
-      norm_hours_consultant: null,
+      norm_hours: null,
       hours_per_shift: null,
-      salary_consultant: null,
-      manager_bonus: null,
+      salary: null,
+      additional_payments: null,
     });
   };
 
@@ -88,12 +86,10 @@ const Settings = () => {
       try {
         const created = await invoke('create_position', {
           name: newPositionName,
-          normHoursConsultant: newPositionData.norm_hours_consultant,
-          normHoursOptometrist: null,
+          normHours: newPositionData.norm_hours,
           hoursPerShift: newPositionData.hours_per_shift,
-          salaryConsultant: newPositionData.salary_consultant,
-          salaryOptometrist: null,
-          managerBonus: newPositionData.manager_bonus,
+          salary: newPositionData.salary,
+          additionalPayments: newPositionData.additional_payments,
         });
         if (created) {
           setPositions(prev => [...prev, created]);
@@ -163,12 +159,10 @@ const Settings = () => {
       const updated = await invoke('update_position', {
         positionId: editingPosition.id,
         positionName: newPositionName,
-        normHoursConsultant: editingPosition.norm_hours_consultant,
-        normHoursOptometrist: null,
+        normHours: editingPosition.norm_hours,
         hoursPerShift: editingPosition.hours_per_shift,
-        salaryConsultant: editingPosition.salary_consultant,
-        salaryOptometrist: null,
-        managerBonus: editingPosition.manager_bonus,
+        salary: editingPosition.salary,
+        additionalPayments: editingPosition.additional_payments,
       });
       setPositions(prev => prev.map(p => p.id === editingPosition.id ? updated : p));
       setEditingPosition(null);
@@ -268,10 +262,10 @@ const Settings = () => {
                   type="number"
                   min="0"
                   placeholder="Норма часов"
-                  value={editingPosition.norm_hours_consultant ?? ''}
+                  value={editingPosition.norm_hours ?? ''}
                   onChange={(e) => {
                     const val = e.target.value === '' ? null : Math.max(0, Number(e.target.value));
-                    setEditingPosition(prev => ({ ...prev, norm_hours_consultant: val }));
+                    setEditingPosition(prev => ({ ...prev, norm_hours: val }));
                   }}
                 />
                 <Form.Control
@@ -289,20 +283,20 @@ const Settings = () => {
                   type="number"
                   min="0"
                   placeholder="Зарплата (₽)"
-                  value={editingPosition.salary_consultant ?? ''}
+                  value={editingPosition.salary ?? ''}
                   onChange={(e) => {
                     const val = e.target.value === '' ? null : Math.max(0, Number(e.target.value));
-                    setEditingPosition(prev => ({ ...prev, salary_consultant: val }));
+                    setEditingPosition(prev => ({ ...prev, salary: val }));
                   }}
                 />
                 <Form.Control
                   type="number"
                   min="0"
                   placeholder="Дополнительные выплаты (₽)"
-                  value={editingPosition.manager_bonus ?? ''}
+                  value={editingPosition.additional_payments ?? ''}
                   onChange={(e) => {
                     const val = e.target.value === '' ? null : Math.max(0, Number(e.target.value));
-                    setEditingPosition(prev => ({ ...prev, manager_bonus: val }));
+                    setEditingPosition(prev => ({ ...prev, additional_payments: val }));
                   }}
                 />
                 <div className="d-flex gap-2">
@@ -319,7 +313,7 @@ const Settings = () => {
                 <thead>
                   <tr>
                     <th>Должность</th>
-                    <th>Норма часов</th>
+                    <th>Норма ч.</th>
                     <th>Часов/смена</th>
                     <th>Зарплата (₽)</th>
                     <th>Доп. выплаты (₽)</th>
@@ -334,17 +328,15 @@ const Settings = () => {
                   ) : (
                     positions.map((pos) => {
                       const mgr = isManager(pos);
-                      const salary = mgr
-                        ? (pos.salary_consultant || 0) + (pos.manager_bonus || 0)
-                        : (pos.salary_consultant || 0);
+                      const salary = (pos.salary || 0) + (mgr ? (pos.additional_payments || 0) : 0);
 
                       return (
                         <tr key={`pos-${pos.id}`}>
                           <td><strong>{pos.name}</strong></td>
-                          <td>{pos.norm_hours_consultant ?? '—'}</td>
+                          <td>{pos.norm_hours ?? '—'}</td>
                           <td>{pos.hours_per_shift ?? '—'}</td>
                           <td>{salary > 0 ? formatSalary(salary) : '—'}</td>
-                          <td>{pos.manager_bonus != null && pos.manager_bonus > 0 ? formatSalary(pos.manager_bonus) : '—'}</td>
+                          <td>{pos.additional_payments != null && pos.additional_payments > 0 ? formatSalary(pos.additional_payments) : '—'}</td>
                           <td>
                             <div className="d-flex gap-1">
                               <Button variant="outline-primary" size="sm" onClick={() => handleEditPosition(pos)}>
@@ -491,8 +483,8 @@ const Settings = () => {
                   <Form.Control
                     type="number"
                     min="0"
-                    value={newPositionData.norm_hours_consultant ?? ''}
-                    onChange={(e) => setNewPositionData(prev => ({ ...prev, norm_hours_consultant: e.target.value === '' ? null : Math.max(0, Number(e.target.value)) }))}
+                    value={newPositionData.norm_hours ?? ''}
+                    onChange={(e) => setNewPositionData(prev => ({ ...prev, norm_hours: e.target.value === '' ? null : Math.max(0, Number(e.target.value)) }))}
                     placeholder="Введите значение"
                   />
                 </Form.Group>
@@ -512,8 +504,8 @@ const Settings = () => {
                   <Form.Control
                     type="number"
                     min="0"
-                    value={newPositionData.salary_consultant ?? ''}
-                    onChange={(e) => setNewPositionData(prev => ({ ...prev, salary_consultant: e.target.value === '' ? null : Math.max(0, Number(e.target.value)) }))}
+                    value={newPositionData.salary ?? ''}
+                    onChange={(e) => setNewPositionData(prev => ({ ...prev, salary: e.target.value === '' ? null : Math.max(0, Number(e.target.value)) }))}
                     placeholder="Введите значение"
                   />
                 </Form.Group>
@@ -522,8 +514,8 @@ const Settings = () => {
                   <Form.Control
                     type="number"
                     min="0"
-                    value={newPositionData.manager_bonus ?? ''}
-                    onChange={(e) => setNewPositionData(prev => ({ ...prev, manager_bonus: e.target.value === '' ? null : Math.max(0, Number(e.target.value)) }))}
+                    value={newPositionData.additional_payments ?? ''}
+                    onChange={(e) => setNewPositionData(prev => ({ ...prev, additional_payments: e.target.value === '' ? null : Math.max(0, Number(e.target.value)) }))}
                     placeholder="Введите значение"
                   />
                 </Form.Group>
